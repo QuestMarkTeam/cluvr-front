@@ -1,0 +1,32 @@
+.category-section {
+    margin: 16px 0;
+}
+
+.category-title {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.category-tab-btn {
+    padding: 8px 12px;
+    border: 1px solid #E0E0E0;
+    background: #fff;
+    color: #666;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.category-tab-btn.active {
+    background: #6EE7B7;
+    color: #fff;
+    border-color: #6EE7B7;
+}

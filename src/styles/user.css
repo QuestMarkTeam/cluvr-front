@@ -1,0 +1,94 @@
+.profile-card {
+    background: #F0FFF4;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px #0001;
+    padding: 32px 24px 24px 24px;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 32px;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e5e5e5;
+    margin-bottom: 16px;
+}
+
+.profile-nickname {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.profile-email {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.profile-gem {
+    color: #6EE7B7;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.profile-edit {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6EE7B7;
+    cursor: pointer;
+}
+
+.profile-login-btn {
+    width: 100%;
+    background: #6EE7B7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.profile-menu {
+    width: 100%;
+    max-width: 340px;
+    margin: 32px auto 0 auto;
+}
+
+.profile-menu-btn {
+    width: 100%;
+    background: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 14px 0;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px #0001;
+    color: #222;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.logout-btn {
+    width: 100%;
+    background: #ff4444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 14px 0;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px #0001;
+}
