@@ -7,15 +7,18 @@ pipeline {
         ECR_REPO = 'cluvr-front'
         ECR_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         S3_BUCKET = 'cluvr-front'
-        CLOUD_FRONT_ID = 'your-cloudfront-id'
+        CLOUD_FRONT_ID = 'E94ASMOKGZWOG'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                git url: 'https://github.com/your/repo.git', branch: 'main'
+                cleanWs()
+                echo "✅ Checking out source code from GitHub..."
+                checkout scm
             }
         }
+
 
         stage('Build React App') {
             steps {
