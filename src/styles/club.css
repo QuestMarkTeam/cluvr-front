@@ -1,0 +1,37 @@
+/* src/styles/club.css */
+
+/*메인 css*/
+.empty-state {
+    text-align: center;
+    color: #888;
+    padding: 40px 20px;
+    font-size: 1rem;
+}
+.club-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px #0001;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.club-card:hover {
+    transform: translateY(-2px);
+}
+.club-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 4px;
+}
+.club-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+.club-meta {
+    font-size: 0.8rem;
+    color: #6EE7B7;
+    font-weight: bold;
+}

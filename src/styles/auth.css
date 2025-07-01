@@ -1,0 +1,172 @@
+/*로그인*/
+.login-card {
+    background: #F0FFF4;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px #0001;
+    padding: 32px 24px 24px 24px;
+    width: 100%;
+    max-width: 340px;
+    margin: 40px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6EE7B7;
+    margin-bottom: 24px;
+}
+
+.login-input {
+    width: 100%;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.login-btn {
+    width: 100%;
+    background: #6EE7B7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.login-social-btn {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.login-kakao {
+    background: #FEE500;
+    color: #222;
+}
+
+.login-google {
+    background: #fff;
+    color: #222;
+    border: 1px solid #e5e5e5;
+}
+
+.login-link {
+    color: #6EE7B7;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 0 8px;
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    text-align: center;
+}
+/*비밀먼호 찾기*/
+.forget-card {
+    background: #F0FFF4;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px #0001;
+    padding: 32px 24px 24px 24px;
+    width: 100%;
+    max-width: 340px;
+    margin: 40px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.forget-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6EE7B7;
+    margin-bottom: 24px;
+}
+.forget-input {
+    width: 100%;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+    font-size: 1rem;
+}
+.forget-btn {
+    width: 100%;
+    background: #6EE7B7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.forget-link {
+    color: #6EE7B7;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 0 8px;
+}
+.signup-card {
+    background: #F0FFF4;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px #0001;
+    padding: 32px 24px 24px;
+    width: 100%;
+    max-width: 340px;
+    margin: 40px auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 회원가입 */
+.signup-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6EE7B7;
+    margin-bottom: 24px;
+}
+
+.signup-input,
+.signup-select {
+    width: 100%;
+    margin-bottom: 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 1rem;
+    background: white;
+}
+
+.signup-btn {
+    width: 100%;
+    background: #6EE7B7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    padding: 12px 0;
+    font-weight: bold;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.signup-link {
+    color: #6EE7B7;
+    text-decoration: none;
+    font-size: 1rem;
+    margin: 0 8px;
+}
+

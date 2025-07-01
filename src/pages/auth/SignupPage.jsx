@@ -1,0 +1,213 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+
+const API_DOMAIN_URL = 'http://localhost:80'; // 개발용
+// const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+
+export default function SignupPage() {
+    const navigate = useNavigate();
+    const [form, setForm] = useState({
+        name: '',
+        birthday: '',
+        email: '',
+        phoneNumber: '',
+        gender: '',
+        categoryType: '',
+        password: '',
+        confirmPassword: '',
+    });
+    const [error, setError] = useState('');
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const showError = (msg) => {
+        setError(msg);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+
+        const { name, birthday, email, phoneNumber, gender, categoryType, password, confirmPassword } = form;
+
+        if (password !== confirmPassword) {
+            showError('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        const birthdayDate = new Date(birthday);
+        const today = new Date();
+        if (birthdayDate >= today) {
+            showError('생년월일은 과거 날짜여야 합니다.');
+            return;
+        }
+
+        const phoneRegex = /^\d{10,11}$/;
+        if (!phoneRegex.test(phoneNumber)) {
+            showError('전화번호는 10-11자리 숫자여야 합니다.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_DOMAIN_URL}/api/auth/signup/default`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name,
+                    birthday,
+                    email,
+                    phoneNumber,
+                    gender,
+                    categoryType,
+                    imageUrl: null,
+                    password,
+                    confirmPassword,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = '회원가입에 실패했습니다.';
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.result?.message || errorMessage;
+                } catch (e) {
+                    if (response.status === 403) errorMessage = '접근이 거부되었습니다. (403)';
+                    else if (response.status === 500) errorMessage = '서버 오류가 발생했습니다. (500)';
+                    else errorMessage = `오류가 발생했습니다. (${response.status})`;
+                }
+                showError(errorMessage);
+                return;
+            }
+
+            const result = await response.json();
+            const data = result.data;
+
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            localStorage.setItem('userId', data.id);
+            localStorage.setItem('userName', data.name);
+            localStorage.setItem('userEmail', data.email);
+
+            alert('회원가입이 완료되었습니다!');
+            navigate('/home');
+        } catch (err) {
+            console.error('회원가입 오류:', err);
+            showError('서버 연결에 실패했습니다.');
+        }
+    };
+
+    return (
+        <main className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <form className="signup-card" onSubmit={handleSubmit}>
+                <div className="signup-title">Sign Up</div>
+
+                <input
+                    name="name"
+                    type="text"
+                    className="signup-input"
+                    placeholder="이름 (최대 10자)"
+                    maxLength="10"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    name="birthday"
+                    type="date"
+                    className="signup-input"
+                    value={form.birthday}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    name="email"
+                    type="email"
+                    className="signup-input"
+                    placeholder="이메일"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    name="phoneNumber"
+                    type="tel"
+                    className="signup-input"
+                    placeholder="전화번호 (10-11자리)"
+                    pattern="[0-9]{10,11}"
+                    value={form.phoneNumber}
+                    onChange={handleChange}
+                    required
+                />
+
+                <select
+                    name="gender"
+                    className="signup-select"
+                    value={form.gender}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="">성별 선택</option>
+                    <option value="MALE">남성</option>
+                    <option value="FEMALE">여성</option>
+                    <option value="OTHER">기타</option>
+                </select>
+
+                <select
+                    name="categoryType"
+                    className="signup-select"
+                    value={form.categoryType}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="">카테고리 선택</option>
+                    <option value="DEVELOPMENT">개발</option>
+                    <option value="ALGORITHMS_CODING_TESTS">알고리즘</option>
+                    <option value="INTERVIEW_PREPARATION">면접</option>
+                    <option value="CERTIFICATIONS_EXAMS">자격증</option>
+                    <option value="DESIGN">디자인</option>
+                    <option value="LANGUAGE_LEARNING">언어</option>
+                    <option value="AI_DATA_SCIENCE">AI/데이터</option>
+                    <option value="EXTRACURRICULAR_COMPETITIONS">대외활동</option>
+                    <option value="MUSIC_EDUCATION">음악</option>
+                    <option value="OTHERS">기타</option>
+                </select>
+
+                <input
+                    name="password"
+                    type="password"
+                    className="signup-input"
+                    placeholder="비밀번호 (8-20자)"
+                    minLength="8"
+                    maxLength="20"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    name="confirmPassword"
+                    type="password"
+                    className="signup-input"
+                    placeholder="비밀번호 확인"
+                    value={form.confirmPassword}
+                    onChange={handleChange}
+                    required
+                />
+
+                {error && <div className="error-message">{error}</div>}
+
+                <button type="submit" className="signup-btn">회원가입</button>
+
+                <div style={{ marginTop: '8px' }}>
+                    <Link to="/login" className="signup-link">로그인으로 돌아가기</Link>
+                </div>
+            </form>
+        </main>
+    );
+}
