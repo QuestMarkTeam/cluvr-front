@@ -19,7 +19,6 @@ pipeline {
             }
         }
 
-
         stage('Build React App') {
             steps {
                 script {
@@ -28,13 +27,19 @@ pipeline {
                 }
             }
         }
-        script {
-            sh '''
-            aws ecr get-login-password --region $AWS_REGION \
-                | docker login --username AWS --password-stdin $ECR_REGISTRY
-            docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
-            '''
+
+        stage('Docker Login and Push') {
+            steps {
+                script {
+                    sh '''
+                    aws ecr get-login-password --region $AWS_REGION \
+                        | docker login --username AWS --password-stdin $ECR_REGISTRY
+                    docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+                    '''
+                }
+            }
         }
+
         stage('Docker Build and Push to ECR') {
             steps {
                 script {
