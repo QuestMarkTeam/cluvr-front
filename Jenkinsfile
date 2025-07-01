@@ -36,15 +36,15 @@ pipeline {
             }
         }
 
-        stage('Upload to S3') {
-            steps {
-                script {
-                    echo "Uploading build to S3..."
-                    // 빌드된 파일을 dist/ 폴더로 업로드
-                    sh 'aws s3 sync ./build/ s3://${S3_BUCKET}/dist/ --delete'
-                }
-            }
-        }
+         stage('Upload to S3') {
+             steps {
+                 script {
+                     echo "Uploading build to S3..."
+                     // 빌드된 파일이 dist/ 폴더에 생성되므로 해당 경로를 S3로 업로드
+                     sh 'aws s3 sync ./dist/ s3://${S3_BUCKET}/dist/ --delete'
+                 }
+             }
+         }
 
         stage('Invalidate CloudFront Cache') {
             steps {
