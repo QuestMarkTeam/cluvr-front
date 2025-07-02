@@ -38,6 +38,7 @@ export default function LoginPage() {
 
             if (response.ok) {
                 const loginData = result.data;
+                console.log(loginData);
                 localStorage.setItem('accessToken', loginData.accessToken);
                 localStorage.setItem('refreshToken', loginData.refreshToken);
                 localStorage.setItem('userId', loginData.id);

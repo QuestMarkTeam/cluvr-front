@@ -9,9 +9,9 @@ let currentRoomId = null;
 let lastDisplayedDate = null;
 
 const API_CHAT_URL = 'http://localhost:8082';
+const token = localStorage.getItem("accessToken");
 
 const Chat = () => {
-    const [token, setToken] = useState('');
     const [clubId, setClubId] = useState('');
     const [currentSubscription, setCurrentSubscription] = useState(null);
     const [members, setMembers] = useState([]);
@@ -19,16 +19,17 @@ const Chat = () => {
     const [roomName, setRoomName] = useState('채팅방을 선택해주세요');
     const [clubName, setClubName] = useState('');
 
+
+
     // 초기화 함수
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const clubId = params.get('clubId');
-        const token = params.get('token');
         const roomId = params.get('roomId');
         const roomName = params.get('roomName');
 
         if (clubId) setClubId(clubId);
-        if (token) setToken(token);
+
         if (roomId && roomName) {
             setRoomName(roomName);
             connectSocketAndSubscribe(roomId, roomName);
@@ -40,9 +41,6 @@ const Chat = () => {
         }
     }, []);
 
-    const getToken = () => {
-        return sessionStorage.getItem('authToken');
-    };
 
     const sendMessage = () => {
         if (!message || !currentRoomId || !stompClient || !stompClient.connected) {
@@ -197,8 +195,8 @@ const Chat = () => {
     const goBackToMyClubs = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-        const token = getToken() || urlParams.get('token');
         const clubName = urlParams.get('clubName');
+        const token = localStorage.get("accessToken");
         window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}&clubName=${encodeURIComponent(clubName)}`;
     };
 

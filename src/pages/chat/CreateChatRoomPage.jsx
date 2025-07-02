@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const API_CHAT_URL = 'http://localhost:8082';
+const token = localStorage.getItem("accessToken");
 
 const CreateRoom = () => {
     const [roomName, setRoomName] = useState('');
@@ -9,27 +10,14 @@ const CreateRoom = () => {
     const [notification, setNotification] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [clubId, setClubId] = useState('');
-    const [token, setToken] = useState('');
 
-    // 토큰 관리 함수
-    const saveToken = (token) => {
-        sessionStorage.setItem('authToken', token);
-    };
-
-    const getToken = () => {
-        return sessionStorage.getItem('authToken');
-    };
-
-    const clearToken = () => {
-        sessionStorage.removeItem('authToken');
-    };
 
     // 에러 처리 함수
     const handleApiError = (error, defaultMessage) => {
         console.error('API Error:', error);
         if (error.response?.status === 401) {
             showNotification('인증이 만료되었습니다. 다시 로그인해주세요.', 'error');
-            clearToken();
+
             setTimeout(() => {
                 window.location.href = '/login.html';
             }, 2000);
@@ -57,7 +45,6 @@ const CreateRoom = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-        const token = urlParams.get('token');
 
         if (!clubId || !token) {
             showNotification('필수 정보가 누락되었습니다.', 'error');
@@ -65,8 +52,6 @@ const CreateRoom = () => {
         }
 
         setClubId(clubId);
-        setToken(token);
-        saveToken(token);
     }, []);
 
     // 채팅방 생성 함수
