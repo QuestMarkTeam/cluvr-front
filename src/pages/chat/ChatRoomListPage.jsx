@@ -4,15 +4,18 @@ const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 const API_CHAT_URL = import.meta.env.VITE_API_CHAT_URL;
 const token = localStorage.getItem("accessToken");
 
+function getClubId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('clubId');
+}
+
 const ChatRoomList = () => {
     const [clubName, setClubName] = useState('');
     const [chatRooms, setChatRooms] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const [clubId, setClubId] = useState('');
     const [showCreateRoomButton, setShowCreateRoomButton] = useState(false);
 
-
+    const clubId = getClubId();
 
     // 에러 처리 함수
     const handleApiError = (error, defaultMessage) => {
@@ -37,8 +40,6 @@ const ChatRoomList = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-
-        setClubId(clubId);
 
         if (!clubId || !token) {
             alert('잘못된 접근입니다.');
@@ -85,12 +86,13 @@ const ChatRoomList = () => {
     }, []);
 
     const goToChat = (roomId, clubName) => {
+        console.log('clubId:', clubId);
         const roomName = chatRooms.find(room => room.id === roomId)?.name || '';
-        window.location.href = `/chat?clubId=${clubId}&roomId=${roomId}&token=${encodeURIComponent(token)}&clubName=${clubName}&roomName=${encodeURIComponent(roomName)}`;
+        window.location.href = `/chat?clubId=${clubId}&roomId=${roomId}&clubName=${clubName}&roomName=${encodeURIComponent(roomName)}`;
     };
 
     const goToCreateRoom = () => {
-        window.location.href = `/crateroom?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+        window.location.href = `/crateroom?clubId=${clubId}`;
     };
 
     return (
