@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-import '../../styles/chat.css';
 const API_DOMAIN_URL = 'http://44.239.99.137:80';
 const API_CHAT_URL = 'http://54.200.146.243';
 
