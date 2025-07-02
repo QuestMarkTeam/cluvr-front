@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import '../../styles/club.css';
 import '../../styles/category.css';
+import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = 'http://localhost:80'; // 개발용
 const token = localStorage.getItem('accessToken');
@@ -116,13 +117,7 @@ export default function ClubPage() {
                     </button>
                 </main>
 
-                <nav className="tab-bar">
-                    <Link to="/home" className="tab active">Home</Link>
-                    <Link to="/club" className="tab">Club</Link>
-                    <Link to="/board" className="tab">Board</Link>
-                    <Link to="/myclubs" className="tab">My Clubs</Link>
-                    <Link to="/profile" className="tab">Profile</Link>
-                </nav>
+                <TabBar />
 
                 {showModal && (
                     <div className="modal" style={{display: 'flex'}}>

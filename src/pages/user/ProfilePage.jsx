@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/user.css';
+import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = 'http://localhost:80';
 
@@ -115,13 +116,7 @@ export default function ProfilePage() {
                 )}
             </main>
 
-            <nav className="tab-bar">
-                <Link to="/home" className="tab">Home</Link>
-                <Link to="/club" className="tab">Club</Link>
-                <Link to="/board" className="tab">Board</Link>
-                <Link to="/my-club" className="tab">My Clubs</Link>
-                <Link to="/profile" className="tab active">Profile</Link>
-            </nav>
+            <TabBar />
         </div>
     );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate,Link } from 'react-router-dom';
 import '../../styles/board.css';
 import '../../styles/category.css';
+import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = 'http://localhost:80';
 
@@ -129,15 +130,7 @@ export default function BoardPage() {
                     글쓰기
                 </button>
             </main>
-
-            {/* 하단 네비게이션 */}
-            <nav className="tab-bar">
-                <Link to="/home" className="tab">Home</Link>
-                <Link to="/club" className="tab">Club</Link>
-                <Link to="/board" className="tab active">Board</Link>
-                <Link to="/myclubs" className="tab">My Clubs</Link>
-                <Link to="/profile" className="tab">Profile</Link>
-            </nav>
+            <TabBar />
         </div>
     );
 }

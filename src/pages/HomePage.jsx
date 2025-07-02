@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link} from 'react-router-dom';
+import TabBar from '../components/TabBar';
 
 const API_DOMAIN_URL = 'http://localhost:80';
 
@@ -119,14 +120,8 @@ export default function HomePage() {
                     )}
                 </ul>
             </main>
+            <TabBar />
 
-            <nav className="tab-bar">
-                <Link to="/home" className="tab active">Home</Link>
-                <Link to="/club" className="tab">Club</Link>
-                <Link to="/board" className="tab">Board</Link>
-                <Link to="/myclubs" className="tab">My Clubs</Link>
-                <Link to="/profile" className="tab">Profile</Link>
-            </nav>
         </div>
     );
 }

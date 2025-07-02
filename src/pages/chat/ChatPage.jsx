@@ -196,7 +196,6 @@ const Chat = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
         const clubName = urlParams.get('clubName');
-        const token = localStorage.get("accessToken");
         window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}&clubName=${encodeURIComponent(clubName)}`;
     };
 
