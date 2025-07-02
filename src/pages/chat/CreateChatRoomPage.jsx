@@ -19,7 +19,7 @@ const CreateRoom = () => {
             showNotification('인증이 만료되었습니다. 다시 로그인해주세요.', 'error');
 
             setTimeout(() => {
-                window.location.href = '/login.html';
+                window.location.href = '/login';
             }, 2000);
         } else if (error.response?.status === 403) {
             showNotification('접근 권한이 없습니다.', 'error');
@@ -86,7 +86,7 @@ const CreateRoom = () => {
             if (response.ok) {
                 showNotification('채팅방이 성공적으로 생성되었습니다!', 'success');
                 setTimeout(() => {
-                    window.location.href = `${API_CHAT_URL}/chat.html?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+                    window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}`;
                 }, 1500);
             } else {
                 showNotification(result.message || '채팅방 생성에 실패했습니다.', 'error');
@@ -99,7 +99,7 @@ const CreateRoom = () => {
 
     // 뒤로가기 함수
     const goBack = () => {
-        window.location.href = `${API_CHAT_URL}/chatroomlist.html?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+        window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}`;
     };
 
     return (
