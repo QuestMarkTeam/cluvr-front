@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-const API_CHAT_URL = 'http://localhost:8082';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const API_CHAT_URL = import.meta.env.VITE_API_CHAT_URL;
 const token = localStorage.getItem("accessToken");
 
 const CreateRoom = () => {

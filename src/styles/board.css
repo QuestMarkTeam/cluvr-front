@@ -26,3 +26,20 @@
 .board-list-container {
     margin-top: 16px;
 }
+/*게시글 작성*/
+.write-form { background: #F0FFF4; border-radius: 12px; padding: 20px; margin: 24px 0; }
+.write-form input, .write-form textarea, .write-form select { width: 100%; margin-bottom: 12px; border-radius: 6px; border: 1px solid #e5e5e5; padding: 10px; font-size: 1rem; }
+.write-form button { width: 100%; }
+
+/*게시글 자세히 보기*/
+.detail-card { background: #F0FFF4; border-radius: 12px; padding: 20px; margin: 24px 0; }
+.detail-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 6px; }
+.detail-meta { color: #6EE7B7; font-size: 0.95rem; margin-bottom: 10px; }
+.detail-content { font-size: 1.05rem; color: #222; margin-bottom: 16px; }
+.comment-list { list-style: none; padding: 0; margin: 0 0 16px 0; }
+.comment-item { background: #fff; border-radius: 8px; margin-bottom: 8px; padding: 10px 12px; box-shadow: 0 1px 4px #0001; }
+.comment-meta { color: #6EE7B7; font-size: 0.92rem; margin-bottom: 2px; }
+.comment-content { font-size: 1rem; color: #222; }
+.comment-form { display: flex; gap: 8px; }
+.comment-form input { flex: 1; border-radius: 6px; border: 1px solid #e5e5e5; padding: 8px; font-size: 1rem; }
+.comment-form button { background: #6EE7B7; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-weight: bold; cursor: pointer; }

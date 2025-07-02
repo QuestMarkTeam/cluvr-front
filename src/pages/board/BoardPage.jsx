@@ -4,13 +4,13 @@ import '../../styles/board.css';
 import '../../styles/category.css';
 import TabBar from "../../components/TabBar.jsx";
 
-const API_DOMAIN_URL = 'http://localhost:80';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const token = localStorage.getItem('accessToken');
 
 const boardTypes = [
     { label: '자유게시판', value: 'CHITCHAT' },
     { label: '질문게시판', value: 'QUESTION' }
 ];
-const token = localStorage.getItem('accessToken');
 const categories = [
     { label: '전체', value: 'ALL' },
     { label: '개발', value: 'DEVELOPMENT' },
@@ -41,7 +41,6 @@ export default function BoardPage() {
             url += `&category=${currentCategory}`;
         }
 
-        const token = localStorage.getItem('accessToken'); // 토큰 가져오기
 
         try {
             const res = await fetch(url, {
@@ -125,7 +124,7 @@ export default function BoardPage() {
                 <button
                     className="main-btn"
                     style={{ marginBottom: '60px' }}
-                    onClick={() => navigate('/write-board')}
+                    onClick={() => navigate('/board/write')}
                 >
                     글쓰기
                 </button>

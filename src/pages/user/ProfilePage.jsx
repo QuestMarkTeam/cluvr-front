@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/user.css';
 import TabBar from "../../components/TabBar.jsx";
 
-const API_DOMAIN_URL = 'http://localhost:80';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const token = localStorage.getItem("accessToken");
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -24,14 +25,13 @@ export default function ProfilePage() {
 
     const handleLogout = async () => {
         if (window.confirm('정말 로그아웃하시겠습니까?')) {
-            const accessToken = localStorage.getItem('accessToken');
-            if (accessToken) {
+            if (token) {
                 try {
                     // 로그아웃 API 요청
                     await fetch(`${API_DOMAIN_URL}/api/auth/logout`, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${accessToken}`,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         },
                     });
@@ -64,15 +64,16 @@ export default function ProfilePage() {
     return (
         <div className="profile-page">
             <header className="app-bar">
-                <Link to="/home" className="icon-btn">←</Link>
+                <button className="icon-btn" onClick={() => navigate('/home')}>&larr;</button>
                 <h1 className="app-title">Profile</h1>
+                <span style={{width: '2rem'}}/>
             </header>
 
-            <main className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <main className="main-content" style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                 <div className="profile-card">
                     {isLoggedIn ? (
                         <>
-                            <img
+                        <img
                                 src="img/avatar-default.png"
                                 className="profile-avatar"
                                 alt="User Avatar"
@@ -116,7 +117,7 @@ export default function ProfilePage() {
                 )}
             </main>
 
-            <TabBar />
+            <TabBar/>
         </div>
     );
 }

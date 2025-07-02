@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import '../../styles/payment.css';
 
 
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 
 export default function PaymentFailPage() {
     const location = useLocation();

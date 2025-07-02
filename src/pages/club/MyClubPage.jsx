@@ -4,8 +4,7 @@ import '../../styles/club.css';
 import '../../styles/category.css';
 import TabBar from "../../components/TabBar.jsx";
 
-const API_DOMAIN_URL = 'http://localhost:80';
-const API_CHAT_URL = 'http://localhost:8082';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 
 export default function MyClubPage() {
     const [clubs, setClubs] = useState([]);

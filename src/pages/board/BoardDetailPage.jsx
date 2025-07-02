@@ -3,7 +3,8 @@ import { useParams, useNavigate,Link } from 'react-router-dom';
 import '../../styles/board.css';
 import '../../styles/category.css';
 
-const API_DOMAIN_URL = 'http://localhost:80';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const token = localStorage.getItem('accessToken');
 
 export default function BoardDetailPage() {
     const { boardId } = useParams(); // URL에서 boardId 추출
@@ -20,7 +21,12 @@ export default function BoardDetailPage() {
 
     const fetchBoardDetail = async () => {
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}`);
+            const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
+                }
+            });
             const data = await res.json();
             setBoard(data.data);
         } catch (err) {
@@ -30,7 +36,12 @@ export default function BoardDetailPage() {
 
     const fetchComments = async () => {
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`);
+            const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
+                }
+            });
             const data = await res.json();
             setComments(data.data?.content || []);
         } catch (err) {

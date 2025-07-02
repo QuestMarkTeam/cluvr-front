@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
-const API_DOMAIN_URL = 'http://localhost:80';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 const token = localStorage.getItem('accessToken');
 export default function PaymentPage() {
     const location = useLocation();

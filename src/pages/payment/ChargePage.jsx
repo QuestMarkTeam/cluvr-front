@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 
-const API_DOMAIN_URL = 'http://localhost:80'; // 개발용
+
+const token = localStorage.getItem("accessToken");
 
 export default function ChargePage() {
     const [amount, setAmount] = useState('');
@@ -12,7 +13,6 @@ export default function ChargePage() {
     };
 
     const handleCheckout = () => {
-        const token = localStorage.getItem("accessToken");
         if (!token) {
             alert('로그인이 필요합니다.');
             return;

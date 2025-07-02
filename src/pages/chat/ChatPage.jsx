@@ -1,5 +1,3 @@
-// ChatPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import '../../styles/chat.css';
 
@@ -7,8 +5,8 @@ let stompClient = null;
 let socket = null;
 let currentRoomId = null;
 let lastDisplayedDate = null;
-
-const API_CHAT_URL = 'http://localhost:8082';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const API_CHAT_URL = import.meta.env.VITE_API_CHAT_URL;
 const token = localStorage.getItem("accessToken");
 
 const Chat = () => {
@@ -18,8 +16,7 @@ const Chat = () => {
     const [message, setMessage] = useState('');
     const [roomName, setRoomName] = useState('채팅방을 선택해주세요');
     const [clubName, setClubName] = useState('');
-
-
+    const [isOverlayVisible, setIsOverlayVisible] = useState(false); // 멤버 오버레이 표시 여부 상태 추가
 
     // 초기화 함수
     useEffect(() => {
@@ -39,8 +36,21 @@ const Chat = () => {
         if (clubNameFromQuery) {
             setClubName(decodeURIComponent(clubNameFromQuery));
         }
-    }, []);
 
+        // ESC 키로 오버레이 닫기
+        const handleEscapeKey = (e) => {
+            if (e.key === 'Escape') {
+                setIsOverlayVisible(false);
+            }
+        };
+
+        document.addEventListener('keydown', handleEscapeKey);
+
+        // Cleanup 이벤트 리스너
+        return () => {
+            document.removeEventListener('keydown', handleEscapeKey);
+        };
+    }, []);
 
     const sendMessage = () => {
         if (!message || !currentRoomId || !stompClient || !stompClient.connected) {
@@ -199,6 +209,10 @@ const Chat = () => {
         window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}&clubName=${encodeURIComponent(clubName)}`;
     };
 
+    const toggleOverlay = () => {
+        setIsOverlayVisible(prevState => !prevState);
+    };
+
     return (
         <div>
             <div className="backtotheclublist">
@@ -211,7 +225,7 @@ const Chat = () => {
                 <div className="chat-container">
                     <div className="chat-header">
                         💬 - <span id="currentRoomName">{roomName}</span>
-                        <button id="openMembersBtn" title="채팅 멤버 보기">
+                        <button id="openMembersBtn" title="채팅 멤버 보기" onClick={toggleOverlay}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
                                 <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05C17.16 14.1 19 15.03 19 16.5V19h5v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                             </svg>
@@ -236,26 +250,29 @@ const Chat = () => {
                             📤
                         </button>
                     </div>
-                    <div id="membersOverlay">
-                        <div className="members-header">
-                            <span>👥 Member (<span id="memberCount">{members.length}</span>)</span>
-                            <button id="closeMembersBtn" title="닫기">✕</button>
-                        </div>
-                        <hr className="divider" />
-                        <div className="members-list">
-                            {members.map(member => (
-                                <div className="member-item" key={member.userId}>
-                                    <div className="member-avatar">{member.nickname.charAt(0).toUpperCase()}</div>
-                                    <div className="member-info">
-                                        <div className="member-name">{member.nickname || '익명'}</div>
-                                        <div className="member-role">
-                                            <span className={`role-badge role-${member.clubRole.toLowerCase()}`}>{member.clubRole}</span>
+                    {/* 멤버 오버레이 */}
+                    {isOverlayVisible && (
+                        <div id="membersOverlay">
+                            <div className="members-header">
+                                <span>👥 Member (<span id="memberCount">{members.length}</span>)</span>
+                                <button id="closeMembersBtn" title="닫기" onClick={toggleOverlay}>✕</button>
+                            </div>
+                            <hr className="divider" />
+                            <div className="members-list">
+                                {members.map(member => (
+                                    <div className="member-item" key={member.userId}>
+                                        <div className="member-avatar">{member.nickname.charAt(0).toUpperCase()}</div>
+                                        <div className="member-info">
+                                            <div className="member-name">{member.nickname || '익명'}</div>
+                                            <div className="member-role">
+                                                <span className={`role-badge role-${member.clubRole.toLowerCase()}`}>{member.clubRole}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

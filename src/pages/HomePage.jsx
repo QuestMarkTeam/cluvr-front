@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link} from 'react-router-dom';
 import TabBar from '../components/TabBar';
 
-const API_DOMAIN_URL = 'http://localhost:80';
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const token = localStorage.getItem('accessToken'); // localStorage에서 토큰 가져오기
 
 export default function HomePage() {
     const [clubs, setClubs] = useState([]);
@@ -14,7 +15,7 @@ export default function HomePage() {
         '/img/banner2.png',
         '/img/banner3.png'
     ];
-    const token = localStorage.getItem('accessToken'); // localStorage에서 토큰 가져오기
+
     useEffect(() => {
         fetchHomeClubs();
         fetchHomeLatestPosts();
