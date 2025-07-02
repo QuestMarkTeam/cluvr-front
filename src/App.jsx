@@ -17,6 +17,8 @@ import PaymentSuccessPage from './pages/payment/PaymentSuccessPage.jsx';
 import PaymentFailPage from './pages/payment/PaymentFailPage.jsx';
 import ProfilePage from './pages/user/ProfilePage.jsx';
 import ChatPage from './pages/chat/ChatPage.jsx';
+import ChatRoomListPage from './pages/chat/ChatRoomListPage.jsx';
+import CreateChatRoomPage from './pages/chat/CreateChatRoomPage.jsx';
 
 function App() {
     return (
@@ -44,6 +46,8 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 {/* 경로 - /채팅  */}
                 <Route path="/chat" element={<ChatPage />} />
+                <Route path="/chatroomlist" element={<ChatRoomListPage />} />
+                <Route path="/crateroom" element={<CreateChatRoomPage />} />
                 {/* 없는 경로 처리 */}
                 <Route path="*" element={<div style={{ textAlign: 'center', marginTop: '50px' }}>404 - 페이지를 찾을 수 없습니다.</div>} />
             </Routes>

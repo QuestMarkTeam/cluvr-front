@@ -1,189 +1,268 @@
+// ChatPage.jsx
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import '../../styles/chat.css';
 
-const API_DOMAIN_URL = 'http://44.239.99.137:80';
-const API_CHAT_URL = 'http://54.200.146.243';
+let stompClient = null;
+let socket = null;
+let currentRoomId = null;
+let lastDisplayedDate = null;
 
-function ChatPage() {
-    const [clubId, setClubId] = useState(1);
-    const [userId, setUserId] = useState(1);
+const API_CHAT_URL = 'http://localhost:8082';
+
+const Chat = () => {
     const [token, setToken] = useState('');
-    const [chatRooms, setChatRooms] = useState([]);
-    const [currentRoomId, setCurrentRoomId] = useState(null);
-    const [currentRoomName, setCurrentRoomName] = useState('');
+    const [clubId, setClubId] = useState('');
+    const [currentSubscription, setCurrentSubscription] = useState(null);
+    const [members, setMembers] = useState([]);
     const [message, setMessage] = useState('');
-    const [messages, setMessages] = useState([]);
+    const [roomName, setRoomName] = useState('채팅방을 선택해주세요');
+    const [clubName, setClubName] = useState('');
 
+    // 초기화 함수
     useEffect(() => {
-        // 클럽 정보 및 채팅방 목록을 불러오기
-        fetchChatRooms();
+        const params = new URLSearchParams(window.location.search);
+        const clubId = params.get('clubId');
+        const token = params.get('token');
+        const roomId = params.get('roomId');
+        const roomName = params.get('roomName');
+
+        if (clubId) setClubId(clubId);
+        if (token) setToken(token);
+        if (roomId && roomName) {
+            setRoomName(roomName);
+            connectSocketAndSubscribe(roomId, roomName);
+        }
+
+        const clubNameFromQuery = params.get('clubName');
+        if (clubNameFromQuery) {
+            setClubName(decodeURIComponent(clubNameFromQuery));
+        }
     }, []);
 
-    // 채팅방 목록 불러오기
-    const fetchChatRooms = async () => {
-        try {
-            const response = await fetch(`${API_CHAT_URL}/chat/list`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({ clubId, userId }),
-            });
-            const data = await response.json();
-            if (data.data) {
-                setChatRooms(data.data.chatRooms || []);
-                updateClubInfo(data.data.clubName);
-            }
-        } catch (error) {
-            console.error('채팅방 목록 불러오기 실패: ', error);
+    const getToken = () => {
+        return sessionStorage.getItem('authToken');
+    };
+
+    const sendMessage = () => {
+        if (!message || !currentRoomId || !stompClient || !stompClient.connected) {
+            console.log("❌ 메시지 전송 실패:", { message, currentRoomId, connected: stompClient?.connected });
+            return;
         }
+
+        const messageData = {
+            roomId: currentRoomId,
+            message: message,
+            type: "TALK",
+            createdAt: new Date().toISOString()
+        };
+
+        stompClient.send("/app/message", {}, JSON.stringify(messageData));
+        setMessage('');
     };
 
-    // 클럽 정보 업데이트
-    const updateClubInfo = (clubName) => {
-        setCurrentRoomName(clubName);
-    };
+    const connectSocketAndSubscribe = (roomId, roomName) => {
+        currentRoomId = roomId;
 
-    // 채팅방 입장
-    const joinChatRoom = async (roomId, roomName) => {
-        setCurrentRoomId(roomId);
-        setCurrentRoomName(roomName);
-        const response = await fetch(`${API_CHAT_URL}/chat/join`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ clubId, userId, roomId }),
+        setRoomName(roomName);
+
+        if (currentSubscription) {
+            currentSubscription.unsubscribe();
+        }
+
+        // 소켓 연결
+        socket = new SockJS(`${API_CHAT_URL}/ws/chat?token=${encodeURIComponent(token)}`);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            joinChatRoom().then(() => {
+                const subscription = stompClient.subscribe(`/sub/ws/chat/rooms/${currentRoomId}`, (message) => {
+                    const msgObj = JSON.parse(message.body);
+                    renderMessage(msgObj);
+                });
+                setCurrentSubscription(subscription);
+            });
+
+            fetchRoomMembers(currentRoomId);
+        }, (error) => {
+            console.error('WebSocket 연결 실패:', error);
         });
-        if (response.ok) {
-            fetchMessages(roomId);
+    };
+
+    const joinChatRoom = () => {
+        return fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${currentRoomId}/join`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        }).catch(error => {
+            console.error('채팅방 입장에 실패했습니다.', error);
+        });
+    };
+
+    const fetchRoomMembers = (roomId) => {
+        fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}/users`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                setMembers(data.data || []);
+            })
+            .catch(error => {
+                console.error('멤버 목록 조회 실패:', error);
+            });
+    };
+
+    const renderMessage = (message) => {
+        const chatBox = document.getElementById("chatBox");
+
+        if (!message.createdAt) {
+            message.createdAt = new Date().toISOString();
         }
-    };
 
-    // 메시지 불러오기
-    const fetchMessages = async (roomId) => {
-        const response = await fetch(`${API_CHAT_URL}/chat/${roomId}`);
-        const data = await response.json();
-        setMessages(data.data || []);
-    };
+        const messageDate = new Date(message.createdAt);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
 
-    // 메시지 전송
-    const sendMessage = async () => {
-        if (message.trim() && currentRoomId) {
-            const payload = {
-                roomId: currentRoomId,
-                userId: parseInt(userId),
-                message: message,
-                type: 'TALK',
-            };
+        const messageDateStr = messageDate.toDateString();
+        const todayStr = today.toDateString();
+        const yesterdayStr = yesterday.toDateString();
 
-            await fetch(`${API_CHAT_URL}/chat/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
+        let dateLabel;
+        if (messageDateStr === todayStr) {
+            dateLabel = "Today";
+        } else if (messageDateStr === yesterdayStr) {
+            dateLabel = "Yesterday";
+        } else {
+            dateLabel = messageDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        if (lastDisplayedDate !== messageDateStr) {
+            const dateDiv = document.createElement("div");
+            dateDiv.className = "date-divider";
+            dateDiv.innerHTML = `<span class="date-text">${dateLabel}</span>`;
+            chatBox.appendChild(dateDiv);
+            lastDisplayedDate = messageDateStr;
+        }
+
+        const msgDiv = document.createElement("div");
+
+        if (message.type === "ENTER" || message.type === "LEAVE") {
+            msgDiv.className = "chat system";
+            msgDiv.innerHTML = `<div class="system-message">${escapeHtml(message.message)}</div>`;
+        } else {
+            msgDiv.className = "chat other";
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "message-content";
+
+            const bubble = document.createElement("div");
+            bubble.className = "message-bubble";
+            bubble.innerHTML = `<strong>${escapeHtml(message.nickname || '익명')}</strong><br>${escapeHtml(message.message)}`;
+
+            const timeDiv = document.createElement("div");
+            timeDiv.className = "message-time";
+
+            const messageTime = new Date(message.createdAt);
+            timeDiv.textContent = messageTime.toLocaleTimeString('ko-KR', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Seoul'
             });
 
-            setMessages([...messages, { message, userId }]);
-            setMessage('');
+            contentDiv.appendChild(bubble);
+            contentDiv.appendChild(timeDiv);
+            msgDiv.appendChild(contentDiv);
         }
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    const escapeHtml = (text) => {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    };
+
+    const goBackToMyClubs = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const clubId = urlParams.get('clubId');
+        const token = getToken() || urlParams.get('token');
+        const clubName = urlParams.get('clubName');
+        window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}&clubName=${encodeURIComponent(clubName)}`;
     };
 
     return (
-        <div className="container">
-            <h2>💬 Cluvr Chat</h2>
-
-            {/* 클럽 정보 */}
-            <div id="clubInfo" className="club-info" style={{ display: currentRoomName ? 'block' : 'none' }}>
-                <span id="clubName">🏛️ {currentRoomName}</span>
+        <div>
+            <div className="backtotheclublist">
+                <button onClick={goBackToMyClubs}> ← </button>
             </div>
-
-            {/* 사용자 정보 입력 */}
-            <div className="input-section">
-                <div className="input-group">
-                    <label>Club ID:</label>
-                    <input type="number" value={clubId} onChange={(e) => setClubId(e.target.value)} />
-                    <label>내 ID:</label>
-                    <input type="number" value={userId} onChange={(e) => setUserId(e.target.value)} />
-                    <label>token:</label>
-                    <input type="text" value={token} onChange={(e) => setToken(e.target.value)} placeholder="여기에 토큰을 입력하세요" />
-                    <button onClick={fetchChatRooms}>📜 채팅방 불러오기</button>
-                </div>
+            <div className="container">
+                <h2 id="clubNameHeader">{clubName}</h2>
             </div>
-
-            {/* 채팅방 목록 */}
-            <div id="chatRoomList" className="chat-rooms-section">
-                {chatRooms.length > 0 ? (
-                    <>
-                        <h3>📦 채팅방 리스트</h3>
-                        <div className="room-list">
-                            {chatRooms.map((room) => (
-                                <button
-                                    key={room.id}
-                                    className={`room-btn ${currentRoomId === room.id ? 'active' : ''}`}
-                                    onClick={() => joinChatRoom(room.id, room.name)}
-                                >
-                                    {room.name} ({room.type})
-                                </button>
-                            ))}
-                        </div>
-                    </>
-                ) : (
-                    <p>채팅방 목록이 없습니다.</p>
-                )}
-            </div>
-
-            {/* 채팅방 영역 */}
-            <hr className="divider" />
             <div className="chat-layout">
                 <div className="chat-container">
                     <div className="chat-header">
-                        💬 채팅 - <span id="currentRoomName">{currentRoomName || '채팅방을 선택해주세요'}</span>
+                        💬 - <span id="currentRoomName">{roomName}</span>
+                        <button id="openMembersBtn" title="채팅 멤버 보기">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05C17.16 14.1 19 15.03 19 16.5V19h5v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                            </svg>
+                        </button>
                     </div>
-                    <div id="chatBox">
-                        {messages.map((msg, index) => (
-                            <div className={`chat ${parseInt(msg.userId) === parseInt(userId) ? 'me' : 'other'}`} key={index}>
-                                <div className="message-bubble">
-                                    <strong>{msg.nickname || '익명'}</strong>
-                                    <br />
-                                    {msg.message}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <div id="chatBox"></div>
                     <div className="message-input-container">
                         <input
                             type="text"
                             id="messageInput"
-                            placeholder="메시지를 입력하세요"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            disabled={!currentRoomId}
+                            placeholder="메시지를 입력하세요"
+                            disabled={!stompClient?.connected}
                         />
-                        <button className="send-btn" onClick={sendMessage} disabled={!currentRoomId || !message.trim()}>
+                        <button
+                            className="send-btn"
+                            id="sendBtn"
+                            onClick={sendMessage}
+                            disabled={!stompClient?.connected}
+                        >
                             📤
                         </button>
                     </div>
-                </div>
-
-                {/* 멤버 리스트 패널 */}
-                <div className="members-panel">
-                    <div className="members-header">
-                        👥 채팅 멤버 (<span id="memberCount">{chatRooms.length}</span>)
-                    </div>
-                    <div className="members-list" id="membersList">
-                        <div style={{ textAlign: 'center', color: '#888', padding: '20px' }}>
-                            채팅방을 선택하면<br />멤버 목록이 표시됩니다
+                    <div id="membersOverlay">
+                        <div className="members-header">
+                            <span>👥 Member (<span id="memberCount">{members.length}</span>)</span>
+                            <button id="closeMembersBtn" title="닫기">✕</button>
+                        </div>
+                        <hr className="divider" />
+                        <div className="members-list">
+                            {members.map(member => (
+                                <div className="member-item" key={member.userId}>
+                                    <div className="member-avatar">{member.nickname.charAt(0).toUpperCase()}</div>
+                                    <div className="member-info">
+                                        <div className="member-name">{member.nickname || '익명'}</div>
+                                        <div className="member-role">
+                                            <span className={`role-badge role-${member.clubRole.toLowerCase()}`}>{member.clubRole}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
 
-export default ChatPage;
+export default Chat;
