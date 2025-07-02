@@ -87,7 +87,7 @@ const CreateRoom = () => {
             if (response.ok) {
                 showNotification('채팅방이 성공적으로 생성되었습니다!', 'success');
                 setTimeout(() => {
-                    window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+                    window.location.href = `/chatroomlist?clubId=${clubId}`;
                 }, 1500);
             } else {
                 showNotification(result.message || '채팅방 생성에 실패했습니다.', 'error');
@@ -100,7 +100,7 @@ const CreateRoom = () => {
 
     // 뒤로가기 함수
     const goBack = () => {
-        window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+        window.location.href = `/chatroomlist?clubId=${clubId}`;
     };
 
     return (

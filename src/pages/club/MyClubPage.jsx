@@ -58,7 +58,7 @@ export default function MyClubPage() {
             return;
         }
 
-        window.location.href = `/chatroomlist?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+        window.location.href = `/chatroomlist?clubId=${clubId}`;
     };
 
     const escapeHtml = (text) => {
