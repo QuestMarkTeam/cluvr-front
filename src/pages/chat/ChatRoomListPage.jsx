@@ -57,6 +57,8 @@ const ChatRoomList = () => {
 
                 const data = await response.json();
 
+                console.log('채팅방 리스트 API 응답 data:', data); // 전체 응답 로그
+
                 // 클럽명 표시
                 const clubName = data.data?.clubName || '클럽명 없음';
                 setClubName(clubName);
@@ -66,8 +68,9 @@ const ChatRoomList = () => {
                 setChatRooms(rooms);
 
                 // 채팅방 생성 버튼 노출 조건
-                const hasManagerRoom = rooms.some(room => room.type === 'MANAGER');
-                setShowCreateRoomButton(hasManagerRoom);
+                const userRole = data.data?.role || '';
+                console.log('userRole:', userRole);
+                setShowCreateRoomButton(userRole.toUpperCase() === 'ADMIN' || userRole.toUpperCase() === 'OWNER');
 
                 setLoading(false);
             } catch (error) {
@@ -82,11 +85,11 @@ const ChatRoomList = () => {
 
     const goToChat = (roomId, clubName) => {
         const roomName = chatRooms.find(room => room.id === roomId)?.name || '';
-        window.location.href = `chat.html?clubId=${clubId}&roomId=${roomId}&token=${encodeURIComponent(token)}&clubName=${clubName}&roomName=${encodeURIComponent(roomName)}`;
+        window.location.href = `/chat?clubId=${clubId}&roomId=${roomId}&token=${encodeURIComponent(token)}&clubName=${clubName}&roomName=${encodeURIComponent(roomName)}`;
     };
 
     const goToCreateRoom = () => {
-        window.location.href = `create-room.html?clubId=${clubId}&token=${encodeURIComponent(token)}`;
+        window.location.href = `/crateroom?clubId=${clubId}&token=${encodeURIComponent(token)}`;
     };
 
     return (
