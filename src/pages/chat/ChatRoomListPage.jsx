@@ -37,7 +37,6 @@ const ChatRoomList = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-
         setClubId(clubId);
 
         if (!clubId || !token) {
