@@ -3,7 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import '../../styles/payment.css';
 
 const API_DOMAIN_URL = 'http://localhost:80';
-
+const token = localStorage.getItem('accessToken');
 
 export default function PaymentSuccessPage() {
     const location = useLocation();
@@ -27,8 +27,8 @@ export default function PaymentSuccessPage() {
         const amount = urlParams.get('amount');
         const gem = amount;
 
-        const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost/api/payments/confirm', {
+
+        const response = await fetch(`${API_DOMAIN_URL}/api/payments/confirm`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

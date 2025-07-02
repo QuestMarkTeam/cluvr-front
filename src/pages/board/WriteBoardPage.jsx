@@ -3,8 +3,8 @@ import { useNavigate,Link } from 'react-router-dom';
 import '../../styles/board.css';
 import '../../styles/category.css';
 
-const API_DOMAIN_URL = 'http://localhost:8080';
-
+const API_DOMAIN_URL = 'http://localhost:80';
+const token = localStorage.getItem('accessToken');
 export default function WriteBoardPage() {
     const navigate = useNavigate();
     const [form, setForm] = useState({
@@ -23,7 +23,10 @@ export default function WriteBoardPage() {
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(form),
             });
 

@@ -4,7 +4,7 @@ import '../../styles/club.css';
 import '../../styles/category.css';
 
 const API_DOMAIN_URL = 'http://localhost:80'; // 개발용
-
+const token = localStorage.getItem('accessToken');
 export default function ClubPage() {
     const [currentClubType, setCurrentClubType] = useState('STUDY');
     const [clubs, setClubs] = useState([]);
@@ -23,9 +23,14 @@ export default function ClubPage() {
     }, [currentClubType]);
 
     const fetchClubs = async () => {
-        const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=${currentClubType}`);
+        const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=${currentClubType}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+            },
+        });
         const data = await res.json();
-        setClubs(data.data?.content || []);
+        setClubs(data.data?.content || []); // clubs 상태 업데이트
     };
 
     const handleInputChange = (e) => {
@@ -40,7 +45,7 @@ export default function ClubPage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 name,

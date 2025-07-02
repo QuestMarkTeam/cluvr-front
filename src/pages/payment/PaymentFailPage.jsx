@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import '../../styles/payment.css';
 
+
+
 export default function PaymentFailPage() {
     const location = useLocation();
 

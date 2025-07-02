@@ -9,7 +9,7 @@ const boardTypes = [
     { label: '자유게시판', value: 'CHITCHAT' },
     { label: '질문게시판', value: 'QUESTION' }
 ];
-
+const token = localStorage.getItem('accessToken');
 const categories = [
     { label: '전체', value: 'ALL' },
     { label: '개발', value: 'DEVELOPMENT' },
@@ -40,8 +40,15 @@ export default function BoardPage() {
             url += `&category=${currentCategory}`;
         }
 
+        const token = localStorage.getItem('accessToken'); // 토큰 가져오기
+
         try {
-            const res = await fetch(url);
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
             const data = await res.json();
             const list = data.data?.content || [];
             setBoards(list);

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 const API_DOMAIN_URL = 'http://localhost:80';
-
+const token = localStorage.getItem('accessToken');
 export default function PaymentPage() {
     const location = useLocation();
 
@@ -25,10 +25,9 @@ export default function PaymentPage() {
     const main = async () => {
         const params = new URLSearchParams(location.search);
         const amount = params.get('amount');
-        const token = localStorage.getItem('accessToken');
 
         // 서버에 결제정보 저장
-        const response = await fetch('http://localhost/api/payments/prepare', {
+        const response = await fetch(`${API_DOMAIN_URL}/api/payments/prepare`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

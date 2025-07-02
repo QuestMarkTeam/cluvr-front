@@ -16,6 +16,7 @@ import PaymentPage from './pages/payment/PaymentPage.jsx';
 import PaymentSuccessPage from './pages/payment/PaymentSuccessPage.jsx';
 import PaymentFailPage from './pages/payment/PaymentFailPage.jsx';
 import ProfilePage from './pages/user/ProfilePage.jsx';
+import ChatPage from './pages/chat/ChatPage.jsx';
 
 function App() {
     return (
@@ -41,6 +42,8 @@ function App() {
                 <Route path="/payment/fail" element={<PaymentFailPage />} />
                 {/* 경로 - /유저  */}
                 <Route path="/profile" element={<ProfilePage />} />
+                {/* 경로 - /채팅  */}
+                <Route path="/chat" element={<ChatPage />} />
                 {/* 없는 경로 처리 */}
                 <Route path="*" element={<div style={{ textAlign: 'center', marginTop: '50px' }}>404 - 페이지를 찾을 수 없습니다.</div>} />
             </Routes>

@@ -13,23 +13,33 @@ export default function HomePage() {
         '/img/banner2.png',
         '/img/banner3.png'
     ];
-
+    const token = localStorage.getItem('accessToken'); // localStorage에서 토큰 가져오기
     useEffect(() => {
         fetchHomeClubs();
         fetchHomeLatestPosts();
         const interval = setInterval(() => nextSlide(), 3000);
         return () => clearInterval(interval);
     }, []);
-
     const fetchHomeClubs = async () => {
-        const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=STUDY`);
+
+        const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=STUDY`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+            },
+        });
         const data = await res.json();
         const content = data.data?.content || [];
         setClubs(content.slice(0, 2));
     };
 
     const fetchHomeLatestPosts = async () => {
-        const res = await fetch(`${API_DOMAIN_URL}/api/boards?category=DEVELOPMENT`);
+        const res = await fetch(`${API_DOMAIN_URL}/api/boards?category=DEVELOPMENT`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+            },
+        });
         const data = await res.json();
         const content = data.data?.content || [];
         setPosts(content.slice(0, 5));
@@ -76,8 +86,8 @@ export default function HomePage() {
                     {clubs.length === 0 ? (
                         <div style={{ color: '#888', textAlign: 'center' }}>클럽이 없습니다.</div>
                     ) : (
-                        clubs.map(club => (
-                            <li className="group-card" key={club.id}>
+                        clubs.map((club, idx) => (
+                            <li className="group-card" key={club.id || idx}> {/* club.id가 없을 경우 idx 사용 */}
                                 <img src={club.posterUrl || 'static/img/study-coding.png'} className="group-thumb" />
                                 <div className="group-info">
                                     <div className="group-title">{club.name}</div>
@@ -85,6 +95,7 @@ export default function HomePage() {
                                     <div className="group-meta">멤버 {club.maxMemberCounter}명</div>
                                 </div>
                             </li>
+
                         ))
                     )}
                 </ul>
@@ -97,8 +108,8 @@ export default function HomePage() {
                     {posts.length === 0 ? (
                         <div style={{ color: '#888', textAlign: 'center' }}>게시글이 없습니다.</div>
                     ) : (
-                        posts.map(post => (
-                            <li className="group-card" key={post.id}>
+                        posts.map((post, idx) => (
+                            <li className="group-card" key={post.id || idx}> {/* post.id가 없을 경우 idx 사용 */}
                                 <Link to={`/board/${post.id}`} className="group-info">
                                     <div className="group-title">{post.title}</div>
                                     <div className="group-meta">by {post.userName || '익명'} · {post.createdAt?.split('T')[0]}</div>
