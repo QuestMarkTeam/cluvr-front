@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../../styles/chat.css';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode'; // jwt-decode를 import 방식으로 가져오기
 
 const API_CHAT_URL = import.meta.env.VITE_API_CHAT_URL;
 const token = localStorage.getItem("accessToken");
@@ -12,17 +10,12 @@ function getClubId() {
     return params.get('clubId');
 }
 
-// JWT에서 userId 추출 함수
-function getMyUserIdFromJWT(token) {
-    if (!token) return null;
-    try {
-        const decoded = jwtDecode(token);
-        // userId가 payload 어디에 있는지에 따라 수정 필요 (예: sub, userId 등)
-        return decoded.userId || decoded.sub || null;
-    } catch (e) {
-        return null;
-    }
-}
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    const decoded = jwtDecode(token);  // 토큰 디코딩
+    const expirationTime = decoded.exp * 1000;  // exp는 초 단위이므로 밀리초로 변환
+    return Date.now() > expirationTime;  // 현재 시간이 만료 시간 이후이면 만료된 것
+};
 
 const Chat = () => {
     const [members, setMembers] = useState([]);
@@ -188,7 +181,7 @@ const Chat = () => {
             .then(res => res.json())
             .then(data => {
                 const members = data.data || [];
-                const myUserId = getMyUserIdFromJWT(token);
+                const myUserId = isTokenExpired(token);
                 const alreadyJoined = members.some(m => String(m.userId) === String(myUserId));
                 if (!alreadyJoined) {
                     // 2. 아직 입장 안 했으면 조인 API 호출 후 소켓 연결
