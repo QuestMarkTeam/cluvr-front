@@ -50,6 +50,7 @@ export default function BoardDetailPage() {
     };
 
     const fetchComments = async () => {
+        const token = localStorage.getItem('accessToken');
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
                 method: 'GET',
