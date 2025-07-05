@@ -3,7 +3,6 @@ import { useLocation, Link } from 'react-router-dom';
 import '../../styles/payment.css';
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken');
 
 export default function PaymentSuccessPage() {
     const location = useLocation();
@@ -26,25 +25,37 @@ export default function PaymentSuccessPage() {
         const orderId = urlParams.get('orderId');
         const amount = urlParams.get('amount');
         const gem = amount;
+        const token = localStorage.getItem('accessToken');
 
+        try {
+            const response = await fetch(`${API_DOMAIN_URL}/api/payments/confirm`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+                body: JSON.stringify({
+                    paymentKey,
+                    orderId,
+                    gem,
+                }),
+            });
 
-        const response = await fetch(`${API_DOMAIN_URL}/api/payments/confirm`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token,
-            },
-            body: JSON.stringify({
-                paymentKey,
-                orderId,
-                gem,
-            }),
-        });
+            if (response.status === 401) {
+                localStorage.clear();
+                alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+                return;
+            }
 
-        if (response.ok) {
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.result?.message || '결제 승인에 실패했습니다.');
+            }
+
             alert('결제가 완료되었습니다!');
-        } else {
-            alert('결제 실패');
+        } catch (err) {
+            console.error('결제 승인 실패:', err);
+            alert(err.message || '결제 실패');
         }
     };
 

@@ -4,7 +4,6 @@ import '../../styles/board.css';
 import '../../styles/category.css';
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken');
 
 export default function BoardDetailPage() {
     const { boardId } = useParams(); // URL에서 boardId 추출
@@ -20,6 +19,7 @@ export default function BoardDetailPage() {
     }, [boardId]);
 
     const fetchBoardDetail = async () => {
+        const token = localStorage.getItem('accessToken');
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}`, {
                 method: 'GET',
@@ -27,6 +27,16 @@ export default function BoardDetailPage() {
                     'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
                 }
             });
+            
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            
+            if (!res.ok) {
+                throw new Error('게시글을 불러오지 못했습니다.');
+            }
+            
             const data = await res.json();
             setBoard(data.data);
         } catch (err) {
@@ -35,6 +45,7 @@ export default function BoardDetailPage() {
     };
 
     const fetchComments = async () => {
+        const token = localStorage.getItem('accessToken');
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
                 method: 'GET',
@@ -42,6 +53,16 @@ export default function BoardDetailPage() {
                     'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
                 }
             });
+            
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            
+            if (!res.ok) {
+                throw new Error('댓글을 불러오지 못했습니다.');
+            }
+            
             const data = await res.json();
             setComments(data.data?.content || []);
         } catch (err) {
@@ -53,11 +74,13 @@ export default function BoardDetailPage() {
         e.preventDefault();
         if (!newComment.trim()) return;
 
+        const token = localStorage.getItem('accessToken');
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ content: newComment })
             });

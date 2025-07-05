@@ -7,6 +7,8 @@ import SignupPage from './pages/auth/SignupPage';
 import ForgetPasswordPage from './pages/auth/ForgetPasswordPage';
 import MyClubPage from './pages/club/MyClubPage.jsx';
 import ClubPage from './pages/club/ClubPage.jsx';
+import CreateClubPage from './pages/club/CreateClubPage.jsx';
+import ClubDetailPage from './pages/club/ClubDetailPage.jsx';
 import BoardPage from './pages/board/BoardPage';
 import BoardDetailPage from './pages/board/BoardDetailPage';
 import WriteBoardPage from './pages/board/WriteBoardPage';
@@ -33,6 +35,8 @@ function App() {
                 {/* 경로 - /클럽  */}
                 <Route path="/club" element={<ClubPage />} />
                 <Route path="/myclubs" element={<MyClubPage />} />
+                <Route path="/club/create" element={<CreateClubPage />} />
+                <Route path="/club/:clubId" element={<ClubDetailPage />} />
                 {/* 경로 - /게시판  */}
                 <Route path="/board" element={<BoardPage />} />
                 <Route path="/board/:boardId" element={<BoardDetailPage />} />

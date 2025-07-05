@@ -5,7 +5,6 @@ import '../../styles/category.css';
 import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken');
 export default function WriteBoardPage() {
     const navigate = useNavigate();
     const [form, setForm] = useState({
@@ -21,6 +20,7 @@ export default function WriteBoardPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('accessToken');
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards`, {
                 method: 'POST',
@@ -31,15 +31,22 @@ export default function WriteBoardPage() {
                 body: JSON.stringify(form),
             });
 
-            if (res.ok) {
-                alert('게시글이 등록되었습니다!');
-                navigate('/board');
-            } else {
-                alert('등록 실패');
+            if (res.status === 401) {
+                localStorage.clear();
+                alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+                return;
             }
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.result?.message || '게시글 등록에 실패했습니다.');
+            }
+
+            alert('게시글이 등록되었습니다!');
+            navigate('/board');
         } catch (err) {
             console.error('게시글 등록 오류:', err);
-            alert('에러 발생');
+            alert(err.message || '에러 발생');
         }
     };
 
