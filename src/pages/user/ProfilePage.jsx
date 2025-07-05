@@ -9,6 +9,7 @@ export default function ProfilePage() {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userInfo, setUserInfo] = useState({});
+    const [userProfile, setUserProfile] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
@@ -19,8 +20,32 @@ export default function ProfilePage() {
                 userName: localStorage.getItem('userName') || '사용자',
                 userEmail: localStorage.getItem('userEmail') || '',
             });
+            // 실제 사용자 프로필 정보 가져오기
+            fetchUserProfile();
         }
     }, []);
+
+    const fetchUserProfile = async () => {
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/users/me`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            if (!res.ok) throw new Error('프로필 정보를 불러오지 못했습니다.');
+            const data = await res.json();
+            setUserProfile(data.data);
+        } catch (err) {
+            console.error('프로필 정보 불러오기 오류:', err);
+        }
+    };
 
     const handleLogout = async () => {
         if (window.confirm('정말 로그아웃하시겠습니까?')) {
@@ -81,7 +106,7 @@ export default function ProfilePage() {
                             />
                             <div className="profile-nickname">{userInfo.userName}</div>
                             <div className="profile-email">{userInfo.userEmail}</div>
-                            <div className="profile-gem">Gem: 123</div>
+                            <div className="profile-gem">💎 {userProfile?.gem || 0}</div>
                             <button className="profile-edit" onClick={() => handleMenuNavigation('/edit-profile')}>
                                 &#9881;
                             </button>

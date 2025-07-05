@@ -43,3 +43,34 @@
 .comment-form { display: flex; gap: 8px; }
 .comment-form input { flex: 1; border-radius: 6px; border: 1px solid #e5e5e5; padding: 8px; font-size: 1rem; }
 .comment-form button { background: #6EE7B7; color: #fff; border: none; border-radius: 6px; padding: 8px 16px; font-weight: bold; cursor: pointer; }
+
+.reply-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  margin: 4px 0 6px 0;
+}
+.reply-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.05rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.18s;
+}
+.reply-reaction-btn.liked {
+  color: #6EE7B7;
+  font-weight: bold;
+}
+.reply-reaction-btn.disliked {
+  color: #F87171;
+  font-weight: bold;
+}
+.reply-reaction-btn:hover:not(.liked):not(.disliked) {
+  color: #888;
+}
