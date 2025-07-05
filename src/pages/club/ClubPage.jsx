@@ -42,6 +42,7 @@ export default function ClubPage() {
             }
             
             const data = await res.json();
+            console.log(data.data)
             setClubs(data.data?.content || []); // clubs 상태 업데이트
         } catch (err) {
             console.error('클럽 목록 조회 실패:', err);
@@ -133,7 +134,7 @@ export default function ClubPage() {
                                 className="group-card"
                                 onClick={() => navigate(`/club/${club.clubId}`)}
                             >
-                                <img src={club.posterUrl || '/static/img/study-coding.png'}
+                                <img src={club.posterUrl}
                                      className="group-thumb"/>
                                 <div className="group-info">
                                     <div className="group-title">{club.name}</div>

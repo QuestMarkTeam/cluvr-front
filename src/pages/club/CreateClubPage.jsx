@@ -35,6 +35,35 @@ const joinTypes = [
 
 export default function CreateClubPage() {
     const navigate = useNavigate();
+
+    const [profileImage, setProfileImage] = useState(null);
+    const [error, setError] = useState('');
+
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setProfileImage(e.target.files[0]);
+        }
+    };
+
+    const uploadImageToS3 = async (file) => {
+        const fileName = encodeURIComponent(file.name);
+        const res = await fetch(`${API_DOMAIN_URL}/api/image?fileName=${fileName}`);
+        const { uploadUrl, fileUrl } = await res.json();
+        console.log(uploadUrl);
+        console.log(fileUrl);
+        await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+        });
+
+        return fileUrl;
+    };
+
+    const showError = (msg) => {
+        setError(msg);
+    };
+
     const [formData, setFormData] = useState({
         name: '',
         clubType: 'STUDY',
@@ -90,9 +119,11 @@ export default function CreateClubPage() {
         }));
     };
 
+
+
     const handleJoinTypeSelect = (joinType) => {
         setFormData(prev => ({ ...prev, joinType }));
-        
+
         if (joinType === 'PROBLEM_FORM') {
             setShowProblemModal(true);
         } else if (joinType === 'SUBMISSION_FORM') {
@@ -196,11 +227,21 @@ export default function CreateClubPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // 필수 필드 검증
         if (!formData.name || !formData.greeting || !formData.description || !formData.posterUrl) {
             alert('모든 필수 필드를 입력해주세요.');
             return;
+        }
+        let posterUrl = null;
+        if (profileImage) {
+            try {
+                posterUrl = await uploadImageToS3(profileImage);
+                // eslint-disable-next-line no-unused-vars
+            } catch (uploadError) {
+                showError('이미지 업로드에 실패했습니다.');
+                return;
+            }
         }
 
         const token = localStorage.getItem('accessToken');
@@ -213,6 +254,7 @@ export default function CreateClubPage() {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    posterUrl,
                     minCloverRequirement: parseInt(formData.minCloverRequirement),
                     maxMemberCount: parseInt(formData.maxMemberCount)
                 })
@@ -269,9 +311,9 @@ export default function CreateClubPage() {
                     {/* 카테고리 선택 */}
                     <div className="form-section">
                         <h3>카테고리</h3>
-                        <select 
-                            name="categoryDetail" 
-                            value={formData.categoryDetail} 
+                        <select
+                            name="categoryDetail"
+                            value={formData.categoryDetail}
                             onChange={handleInputChange}
                             required
                         >
@@ -322,13 +364,17 @@ export default function CreateClubPage() {
                             type="url"
                             required
                         />
+                        <div className="image-upload">
+                            <label>프로필 이미지 선택:</label>
+                            <input type="file" accept="image/*" onChange={handleImageChange}/>
+                        </div>
                     </div>
 
                     {/* 설정 */}
                     <div className="form-section">
                         <h3>설정</h3>
                         <div className="form-row">
-                            <div className="form-group">
+                        <div className="form-group">
                                 <label>클로버 제한</label>
                                 <input
                                     name="minCloverRequirement"
@@ -351,7 +397,7 @@ export default function CreateClubPage() {
                                 />
                             </div>
                         </div>
-                        
+
                         {/* 가입 방식 버튼 */}
                         <div className="form-section">
                             <h3>가입 방식</h3>
@@ -487,4 +533,4 @@ export default function CreateClubPage() {
             <TabBar />
         </div>
     );
-} 
+}
