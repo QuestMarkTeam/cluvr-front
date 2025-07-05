@@ -212,12 +212,8 @@ export default function ClubDetailPage() {
                             rows="6"
                         />
                         <div className="modal-buttons">
-                            <button type="button" onClick={handleJoinRequest} className="main-btn">
-                                신청하기
-                            </button>
-                            <button type="button" onClick={() => setShowJoinModal(false)} className="btn-secondary">
-                                취소
-                            </button>
+                            <button type="button" className="btn-secondary form-btn" onClick={() => setShowJoinModal(false)}>취소</button>
+                            <button type="button" className="main-btn form-btn" onClick={handleJoinRequest}>신청하기</button>
                         </div>
                     </div>
                 </div>
