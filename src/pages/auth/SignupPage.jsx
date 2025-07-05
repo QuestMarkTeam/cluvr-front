@@ -16,14 +16,35 @@ export default function SignupPage() {
         password: '',
         confirmPassword: '',
     });
+    const [profileImage, setProfileImage] = useState(null);
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setProfileImage(e.target.files[0]);
+        }
+    };
+
     const showError = (msg) => {
         setError(msg);
+    };
+
+    const uploadImageToS3 = async (file) => {
+        const filename = encodeURIComponent(file.name);
+        const res = await fetch(`${API_DOMAIN_URL}/api/image/?filename=${filename}`);
+        const { uploadUrl, fileUrl } = await res.json();
+
+        await fetch(uploadUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file,
+        });
+
+        return fileUrl;
     };
 
     const handleSubmit = async (e) => {
@@ -50,6 +71,17 @@ export default function SignupPage() {
             return;
         }
 
+        let imageUrl = null;
+        if (profileImage) {
+            try {
+                imageUrl = await uploadImageToS3(profileImage);
+                // eslint-disable-next-line no-unused-vars
+            } catch (uploadError) {
+                showError('이미지 업로드에 실패했습니다.');
+                return;
+            }
+        }
+
         try {
             const response = await fetch(`${API_DOMAIN_URL}/api/auth/signup/default`, {
                 method: 'POST',
@@ -61,7 +93,7 @@ export default function SignupPage() {
                     phoneNumber,
                     gender,
                     categoryType,
-                    imageUrl: null,
+                    imageUrl,
                     password,
                     confirmPassword,
                 }),
@@ -73,6 +105,7 @@ export default function SignupPage() {
                 try {
                     const errorJson = JSON.parse(errorText);
                     errorMessage = errorJson.result?.message || errorMessage;
+                    // eslint-disable-next-line no-unused-vars
                 } catch (e) {
                     if (response.status === 403) errorMessage = '접근이 거부되었습니다. (403)';
                     else if (response.status === 500) errorMessage = '서버 오류가 발생했습니다. (500)';
@@ -199,6 +232,11 @@ export default function SignupPage() {
                     onChange={handleChange}
                     required
                 />
+
+                <div className="image-upload">
+                    <label>프로필 이미지 선택:</label>
+                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                </div>
 
                 {error && <div className="error-message">{error}</div>}
 
