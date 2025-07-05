@@ -27,6 +27,7 @@ export default function BoardPage() {
     const [currentBoardType, setCurrentBoardType] = useState('CHITCHAT');
     const [currentCategory, setCurrentCategory] = useState('DEVELOPMENT');
     const [boards, setBoards] = useState([]);
+    const [reactionState, setReactionState] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -61,6 +62,32 @@ export default function BoardPage() {
         } catch (err) {
             console.error('게시글 목록 조회 실패:', err);
             setBoards([]);
+        }
+    };
+
+    const handleReaction = async (boardId, type, isSelected) => {
+        const token = localStorage.getItem('accessToken');
+        const url = `${API_DOMAIN_URL}/api/reactions`;
+        const body = { reactionType: type, boardId };
+        try {
+            const res = await fetch(url, {
+                method: isSelected ? 'DELETE' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error('리액션 실패');
+            setReactionState(prev => ({
+                ...prev,
+                [boardId]: {
+                    like: type === 'LIKE' ? !isSelected : prev[boardId]?.like || false,
+                    dislike: type === 'DISLIKE' ? !isSelected : prev[boardId]?.dislike || false
+                }
+            }));
+        } catch (err) {
+            alert('리액션 처리 실패');
         }
     };
 
@@ -115,6 +142,7 @@ export default function BoardPage() {
                                 key={board.id}
                                 className="group-card"
                                 onClick={() => navigate(`/board/${board.id}`)}
+                                style={{ cursor: 'pointer' }}
                             >
                                 <div className="group-info">
                                     <div className="group-title">{board.title}</div>
