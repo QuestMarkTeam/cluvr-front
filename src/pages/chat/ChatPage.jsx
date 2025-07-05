@@ -30,6 +30,11 @@ async function getMyUserIdFromJWT(token) {
             }
         });
         
+        if (response.status === 401) {
+            localStorage.clear();
+            return null;
+        }
+        
         if (!response.ok) {
             console.error('사용자 ID 조회 실패:', response.status);
             return null;
@@ -114,9 +119,22 @@ const Chat = () => {
                 "Authorization": `Bearer ${token}`
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 401) {
+                    localStorage.clear();
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('멤버 목록을 불러오지 못했습니다.');
+                }
+                
+                return response.json();
+            })
             .then(data => {
-                setMembers(data.data || []);
+                if (data) {
+                    setMembers(data.data || []);
+                }
             })
             .catch(error => {
                 console.error('멤버 목록 조회 실패:', error);
@@ -293,20 +311,36 @@ const Chat = () => {
             fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}/users`, {
                 headers: { "Authorization": `Bearer ${token}` }
             })
-            .then(res => res.json())
-            .then(async (data) => {
-                const members = data.data || [];
-                const myUserId = await getMyUserIdFromJWT(token);
-                const alreadyJoined = members.some(m => String(m.userId) === String(myUserId));
-                if (!alreadyJoined) {
-                    // 2. 아직 입장 안 했으면 조인 API 호출 → 성공 후 소켓 연결 (딜레이 추가)
-                    joinChatRoom(roomId).then(() => {
-                        setTimeout(() => connectSocketAndSubscribe(roomId), 200);
-                    });
-                } else {
-                    // 3. 이미 입장했으면 바로 소켓 연결
-                    connectSocketAndSubscribe(roomId);
+            .then(res => {
+                if (res.status === 401) {
+                    localStorage.clear();
+                    return;
                 }
+                
+                if (!res.ok) {
+                    throw new Error('멤버 목록을 불러오지 못했습니다.');
+                }
+                
+                return res.json();
+            })
+            .then(async (data) => {
+                if (data) {
+                    const members = data.data || [];
+                    const myUserId = await getMyUserIdFromJWT(token);
+                    const alreadyJoined = members.some(m => String(m.userId) === String(myUserId));
+                    if (!alreadyJoined) {
+                        // 2. 아직 입장 안 했으면 조인 API 호출 → 성공 후 소켓 연결 (딜레이 추가)
+                        joinChatRoom(roomId).then(() => {
+                            setTimeout(() => connectSocketAndSubscribe(roomId), 200);
+                        });
+                    } else {
+                        // 3. 이미 입장했으면 바로 소켓 연결
+                        connectSocketAndSubscribe(roomId);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('채팅방 초기화 실패:', error);
             });
         }
     }, []); // 의존성 배열을 빈 배열로 변경하여 한 번만 실행되도록 함
@@ -391,38 +425,82 @@ const Chat = () => {
         fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}/users`, {
             headers: { "Authorization": `Bearer ${token}` }
         })
-        .then(res => res.json())
-        .then(data => {
-            const members = data.data || [];
-            const myMemberInfo = members.find(m => String(m.userId) === String(myUserId));
-            
-            if (myMemberInfo && myMemberInfo.joinedAt) {
-                // 입장 시간 이후의 메시지만 조회
-                const joinTime = new Date(myMemberInfo.joinedAt).toISOString();
-                console.log('내 입장 시간:', joinTime);
-                
-                // 백엔드에서 입장 시간 이후 메시지 조회 API 호출
-                fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}?from=${joinTime}`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.data && Array.isArray(data.data)) {
-                        setMessages(data.data);
-                    }
-                });
-            } else {
-                // 입장 시간 정보가 없으면 모든 메시지 조회
-                fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}`, {
-                    headers: { "Authorization": `Bearer ${token}` }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.data && Array.isArray(data.data)) {
-                        setMessages(data.data);
-                    }
-                });
+        .then(res => {
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
             }
+            
+            if (!res.ok) {
+                throw new Error('멤버 정보를 불러오지 못했습니다.');
+            }
+            
+            return res.json();
+        })
+        .then(data => {
+            if (data) {
+                const members = data.data || [];
+                const myMemberInfo = members.find(m => String(m.userId) === String(myUserId));
+                
+                if (myMemberInfo && myMemberInfo.joinedAt) {
+                    // 입장 시간 이후의 메시지만 조회
+                    const joinTime = new Date(myMemberInfo.joinedAt).toISOString();
+                    console.log('내 입장 시간:', joinTime);
+                    
+                    // 백엔드에서 입장 시간 이후 메시지 조회 API 호출
+                    fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}?from=${joinTime}`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    })
+                    .then(res => {
+                        if (res.status === 401) {
+                            localStorage.clear();
+                            return;
+                        }
+                        
+                        if (!res.ok) {
+                            throw new Error('메시지를 불러오지 못했습니다.');
+                        }
+                        
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data && data.data && Array.isArray(data.data)) {
+                            setMessages(data.data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('메시지 조회 실패:', error);
+                    });
+                } else {
+                    // 입장 시간 정보가 없으면 모든 메시지 조회
+                    fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/rooms/${roomId}`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    })
+                    .then(res => {
+                        if (res.status === 401) {
+                            localStorage.clear();
+                            return;
+                        }
+                        
+                        if (!res.ok) {
+                            throw new Error('메시지를 불러오지 못했습니다.');
+                        }
+                        
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data && data.data && Array.isArray(data.data)) {
+                            setMessages(data.data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('메시지 조회 실패:', error);
+                    });
+                }
+            }
+        })
+        .catch(error => {
+            console.error('멤버 정보 조회 실패:', error);
         });
     }, [clubId, roomId, myUserId]);
 

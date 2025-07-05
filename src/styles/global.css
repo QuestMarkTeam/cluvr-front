@@ -106,6 +106,7 @@ body {
   box-shadow: 0 2px 8px #6EE7B733;
   cursor: pointer;
   transition: background 0.2s;
+  box-sizing: border-box;
 }
 .main-btn:hover {
   background: #34D399;

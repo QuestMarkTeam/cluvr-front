@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Link} from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken'); // localStorage에서 토큰 가져오기
 
 export default function HomePage() {
     const [clubs, setClubs] = useState([]);
     const [posts, setPosts] = useState([]);
     const [currentSlide, setCurrentSlide] = useState(0);
+    const navigate = useNavigate();
 
     const bannerImages = [
         '/img/banner1.png',
@@ -23,28 +23,59 @@ export default function HomePage() {
         return () => clearInterval(interval);
     }, []);
     const fetchHomeClubs = async () => {
-
-        const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=STUDY`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
-            },
-        });
-        const data = await res.json();
-        const content = data.data?.content || [];
-        setClubs(content.slice(0, 2));
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clubs?clubType=STUDY`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
+            
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            
+            if (!res.ok) {
+                throw new Error('클럽 리스트를 불러오지 못했습니다.');
+            }
+            
+            const data = await res.json();
+            const content = data.data?.content || [];
+            setClubs(content.slice(0, 2));
+        } catch (err) {
+            console.error('클럽 목록 조회 실패:', err);
+            setClubs([]);
+        }
     };
 
     const fetchHomeLatestPosts = async () => {
-        const res = await fetch(`${API_DOMAIN_URL}/api/boards?category=DEVELOPMENT`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
-            },
-        });
-        const data = await res.json();
-        const content = data.data?.content || [];
-        setPosts(content.slice(0, 5));
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/boards/recommendation?category=DEVELOPMENT`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
+            
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            
+            if (!res.ok) {
+                throw new Error('인기 게시글을 불러오지 못했습니다.');
+            }
+            
+            const data = await res.json();
+            const content = data.data || [];
+            setPosts(content.slice(0, 5));
+        } catch (err) {
+            console.error('인기 게시글 조회 실패:', err);
+            setPosts([]);
+        }
     };
 
     const nextSlide = () => {
@@ -103,7 +134,7 @@ export default function HomePage() {
                 </ul>
 
                 <div className="category-header">
-                    <h2>최신 게시글</h2>
+                    <h2>인기 게시글</h2>
                     <Link to="/board" className="more-link">더보기 &gt;</Link>
                 </div>
                 <ul className="group-list">
@@ -111,11 +142,18 @@ export default function HomePage() {
                         <div style={{ color: '#888', textAlign: 'center' }}>게시글이 없습니다.</div>
                     ) : (
                         posts.map((post, idx) => (
-                            <li className="group-card" key={post.id || idx}> {/* post.id가 없을 경우 idx 사용 */}
-                                <Link to={`/board/${post.id}`} className="group-info">
+                            <li
+                                className="group-card"
+                                key={post.id || idx}
+                                onClick={() => navigate(`/board/${post.id}`)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <div className="group-info">
                                     <div className="group-title">{post.title}</div>
-                                    <div className="group-meta">by {post.userName || '익명'} · {post.createdAt?.split('T')[0]}</div>
-                                </Link>
+                                    <div className="group-meta">
+                                        by {post.userName || '익명'} · {post.createdAt?.split('T')[0]}
+                                    </div>
+                                </div>
                             </li>
                         ))
                     )}

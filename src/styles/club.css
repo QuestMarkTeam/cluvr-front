@@ -7,6 +7,360 @@
     padding: 40px 20px;
     font-size: 1rem;
 }
+
+.club-list-container {
+    margin-top: 16px;
+}
+
+/* 클럽 상세 페이지 스타일 */
+.club-detail-container {
+    background: #F0FFF4;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+}
+
+.club-poster {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.club-poster-img {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.club-info-section {
+    margin-bottom: 24px;
+}
+
+.club-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 12px;
+}
+
+.club-meta-info {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.club-type-badge,
+.club-category-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.club-type-badge {
+    background: #6EE7B7;
+    color: #fff;
+}
+
+.club-category-badge {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.club-greeting {
+    font-size: 1.1rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.club-description-section {
+    margin-bottom: 20px;
+}
+
+.club-description-section h3 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.club-description {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.club-created-at {
+    text-align: right;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.join-button-container {
+    text-align: center;
+    margin: 24px 0 60px 0;
+}
+
+.join-btn {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* 클럽 생성 폼 스타일 */
+.create-club-form {
+    background: #F0FFF4;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+    margin-bottom: 28px;
+}
+
+.form-section h3 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #222;
+}
+
+.form-section input,
+.form-section textarea,
+.form-section select {
+    width: 100%;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 2px solid #e5e5e5;
+    padding: 12px 16px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-section input:focus,
+.form-section textarea:focus,
+.form-section select:focus {
+    outline: none;
+    border-color: #6EE7B7;
+    box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.1);
+}
+
+.form-section textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* 가입 방식 버튼 스타일 */
+.join-type-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.join-type-btn {
+    padding: 8px 16px;
+    border: 1px solid #6EE7B7;
+    background: transparent;
+    color: #6EE7B7;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.join-type-btn:hover {
+    background: #6EE7B7;
+    color: #fff;
+}
+
+.join-type-btn.active {
+    background: #6EE7B7;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(110, 231, 183, 0.3);
+}
+
+.checkbox-group {
+    margin-top: 12px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.form-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    margin-top: 32px;
+    width: 100%;
+    align-items: stretch;
+}
+
+.form-btn {
+    flex: 1;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    min-width: 0;
+    box-sizing: border-box;
+    border-radius: 16px;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.btn-secondary, .main-btn {
+    /* .form-btn에서 공통 처리, 여기선 색상 등만 */
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #666;
+    border: 2px solid #e5e5e5;
+    transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    color: #222;
+    border: 2px solid #6EE7B7;
+}
+
+/* 모달 스타일 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-content h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #222;
+}
+
+.modal-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.modal-content input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+.modal-content textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    padding: 10px;
+    font-size: 1rem;
+    resize: none;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    margin-top: 16px;
+    width: 100%;
+    align-items: stretch;
+}
+
+.modal-buttons .form-btn {
+    flex: 1;
+}
+
+/* 초대코드 결과 스타일 */
+.invite-code-result {
+    text-align: center;
+    margin: 16px 0;
+}
+
+.invite-code-result p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.invite-code-display {
+    background: #F0FFF4;
+    border: 2px solid #6EE7B7;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #6EE7B7;
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
 .club-card {
     background: #fff;
     border-radius: 12px;

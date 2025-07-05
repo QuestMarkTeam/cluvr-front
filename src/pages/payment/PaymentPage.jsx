@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken');
 export default function PaymentPage() {
     const location = useLocation();
 
@@ -25,66 +24,82 @@ export default function PaymentPage() {
     const main = async () => {
         const params = new URLSearchParams(location.search);
         const amount = params.get('amount');
+        const token = localStorage.getItem('accessToken');
 
-        // 서버에 결제정보 저장
-        const response = await fetch(`${API_DOMAIN_URL}/api/payments/prepare`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token,
-            },
-            body: JSON.stringify({
-                amount: amount,
-                orderName: 'Gem 충전',
-            }),
-        });
+        try {
+            // 서버에 결제정보 저장
+            const response = await fetch(`${API_DOMAIN_URL}/api/payments/prepare`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    orderName: 'Gem 충전',
+                }),
+            });
 
-        const responseBody = await response.json();
-        const data = responseBody.data;
-        const uuid = data.uuid;
-        const orderId = data.orderId;
-        const orderName = data.orderName;
-        const paymentAmount = data.amount;
-
-        // 결제 위젯 초기화
-        const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
-        const tossPayments = TossPayments(clientKey);
-
-        const widgets = tossPayments.widgets({
-            customerKey: uuid,
-        });
-
-        // 결제 금액 설정
-        await widgets.setAmount({
-            currency: 'KRW',
-            value: paymentAmount,
-        });
-
-        // 결제 UI와 이용약관 UI 렌더링
-        await Promise.all([
-            widgets.renderPaymentMethods({
-                selector: '#payment-method',
-                variantKey: 'DEFAULT',
-            }),
-            widgets.renderAgreement({
-                selector: '#agreement',
-                variantKey: 'AGREEMENT',
-            }),
-        ]);
-
-        // 결제 버튼 클릭 시 결제 요청
-        document.getElementById('payment-button').addEventListener('click', async () => {
-            try {
-                await widgets.requestPayment({
-                    orderId: orderId,
-                    orderName: orderName,
-                    successUrl: window.location.origin + '/payment/success',
-                    failUrl: window.location.origin + '/payment/fail',
-                });
-            } catch (err) {
-                alert('결제 실패: ' + err.message);
+            if (response.status === 401) {
+                localStorage.clear();
+                alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+                return;
             }
-        });
+
+            if (!response.ok) {
+                throw new Error('결제 준비에 실패했습니다.');
+            }
+
+            const responseBody = await response.json();
+            const data = responseBody.data;
+            const uuid = data.uuid;
+            const orderId = data.orderId;
+            const orderName = data.orderName;
+            const paymentAmount = data.amount;
+
+            // 결제 위젯 초기화
+            const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
+            const tossPayments = TossPayments(clientKey);
+
+            const widgets = tossPayments.widgets({
+                customerKey: uuid,
+            });
+
+            // 결제 금액 설정
+            await widgets.setAmount({
+                currency: 'KRW',
+                value: paymentAmount,
+            });
+
+            // 결제 UI와 이용약관 UI 렌더링
+            await Promise.all([
+                widgets.renderPaymentMethods({
+                    selector: '#payment-method',
+                    variantKey: 'DEFAULT',
+                }),
+                widgets.renderAgreement({
+                    selector: '#agreement',
+                    variantKey: 'AGREEMENT',
+                }),
+            ]);
+
+            // 결제 버튼 클릭 시 결제 요청
+            document.getElementById('payment-button').addEventListener('click', async () => {
+                try {
+                    await widgets.requestPayment({
+                        orderId: orderId,
+                        orderName: orderName,
+                        successUrl: window.location.origin + '/payment/success',
+                        failUrl: window.location.origin + '/payment/fail',
+                    });
+                } catch (err) {
+                    alert('결제 실패: ' + err.message);
+                }
+            });
+        } catch (err) {
+            console.error('결제 준비 실패:', err);
+            alert('결제 준비에 실패했습니다.');
+        }
     };
 
     return (

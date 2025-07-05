@@ -5,14 +5,12 @@ import '../../styles/category.css';
 import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem('accessToken');
 
 const boardTypes = [
     { label: '자유게시판', value: 'CHITCHAT' },
     { label: '질문게시판', value: 'QUESTION' }
 ];
 const categories = [
-    { label: '전체', value: 'ALL' },
     { label: '개발', value: 'DEVELOPMENT' },
     { label: '알고리즘', value: 'ALGORITHMS_CODING_TESTS' },
     { label: '면접', value: 'INTERVIEW_PREPARATION' },
@@ -27,7 +25,7 @@ const categories = [
 
 export default function BoardPage() {
     const [currentBoardType, setCurrentBoardType] = useState('CHITCHAT');
-    const [currentCategory, setCurrentCategory] = useState('ALL');
+    const [currentCategory, setCurrentCategory] = useState('DEVELOPMENT');
     const [boards, setBoards] = useState([]);
     const navigate = useNavigate();
 
@@ -36,19 +34,27 @@ export default function BoardPage() {
     }, [currentBoardType, currentCategory]);
 
     const fetchBoards = async () => {
+        const token = localStorage.getItem('accessToken');
         let url = `${API_DOMAIN_URL}/api/boards?boardType=${currentBoardType}`;
-        if (currentCategory !== 'ALL') {
-            url += `&category=${currentCategory}`;
-        }
-
+        url += `&category=${currentCategory}`;
 
         try {
             const res = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                    'Authorization': `Bearer ${token}`,
                 },
             });
+            
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+            
+            if (!res.ok) {
+                throw new Error('게시글 목록을 불러오지 못했습니다.');
+            }
+            
             const data = await res.json();
             const list = data.data?.content || [];
             setBoards(list);
@@ -112,7 +118,6 @@ export default function BoardPage() {
                             >
                                 <div className="group-info">
                                     <div className="group-title">{board.title}</div>
-                                    <div className="group-desc">{board.content?.slice(0, 50)}</div>
                                     <div className="group-meta">
                                         by {board.userName || '익명'} · {board.createdAt?.split('T')[0]}
                                     </div>

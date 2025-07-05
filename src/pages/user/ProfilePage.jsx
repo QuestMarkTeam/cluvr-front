@@ -4,7 +4,6 @@ import '../../styles/user.css';
 import TabBar from "../../components/TabBar.jsx";
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
-const token = localStorage.getItem("accessToken");
 
 export default function ProfilePage() {
     const navigate = useNavigate();
@@ -25,6 +24,7 @@ export default function ProfilePage() {
 
     const handleLogout = async () => {
         if (window.confirm('정말 로그아웃하시겠습니까?')) {
+            const token = localStorage.getItem('accessToken');
             if (token) {
                 try {
                     // 로그아웃 API 요청
