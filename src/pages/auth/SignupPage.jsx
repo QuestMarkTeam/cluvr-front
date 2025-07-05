@@ -34,10 +34,11 @@ export default function SignupPage() {
     };
 
     const uploadImageToS3 = async (file) => {
-        const filename = encodeURIComponent(file.name);
-        const res = await fetch(`${API_DOMAIN_URL}/api/image/?filename=${filename}`);
+        const fileName = encodeURIComponent(file.name);
+        const res = await fetch(`${API_DOMAIN_URL}/api/image?fileName=${fileName}`);
         const { uploadUrl, fileUrl } = await res.json();
-
+        console.log(uploadUrl);
+        console.log(fileUrl);
         await fetch(uploadUrl, {
             method: 'PUT',
             headers: { 'Content-Type': file.type },
@@ -83,7 +84,7 @@ export default function SignupPage() {
         }
 
         try {
-            const response = await fetch(`${API_DOMAIN_URL}/api/auth/signup/default`, {
+            const response = await fetch(`${API_DOMAIN_URL}/api/auth/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -115,17 +116,9 @@ export default function SignupPage() {
                 return;
             }
 
-            const result = await response.json();
-            const data = result.data;
 
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            localStorage.setItem('userId', data.id);
-            localStorage.setItem('userName', data.name);
-            localStorage.setItem('userEmail', data.email);
-
-            alert('회원가입이 완료되었습니다!');
-            navigate('/home');
+            alert('이메일 인증을 완료 후 로그인 해주세요!');
+            navigate('/login');
         } catch (err) {
             console.error('회원가입 오류:', err);
             showError('서버 연결에 실패했습니다.');
