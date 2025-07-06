@@ -90,7 +90,9 @@ export default function HomePage() {
         <div>
             <header className="app-bar">
                 <h1 className="app-title">Cluvr</h1>
+                <Link to="/notifications">
                 <button className="icon-btn bell">🔔</button>
+                </Link>
             </header>
 
             <section className="banner">

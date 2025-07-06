@@ -21,6 +21,7 @@ import ProfilePage from './pages/user/ProfilePage.jsx';
 import ChatPage from './pages/chat/ChatPage.jsx';
 import ChatRoomListPage from './pages/chat/ChatRoomListPage.jsx';
 import CreateChatRoomPage from './pages/chat/CreateChatRoomPage.jsx';
+import NotificationPage from './pages/notification/NotificationPage.jsx';
 
 function App() {
     return (
@@ -52,6 +53,8 @@ function App() {
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/chatroomlist" element={<ChatRoomListPage />} />
                 <Route path="/crateroom" element={<CreateChatRoomPage />} />
+                {/* 경로 - /알림 */}
+                <Route path="/notifications" element={<NotificationPage />} />
                 {/* 없는 경로 처리 */}
                 <Route path="*" element={<div style={{ textAlign: 'center', marginTop: '50px' }}>404 - 페이지를 찾을 수 없습니다.</div>} />
             </Routes>
