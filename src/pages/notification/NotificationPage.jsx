@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 
 const BASE_URL = "https://cluvr.co.kr";
 
+const BASE_URL = "https://cluvr.co.kr";
+
+const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
 
@@ -16,21 +21,36 @@ const NotificationPage = () => {
 
     fetchNotifications();
     connectSSE();
-  }, []);
+  }, [token]); // token이 변경될 때마다 실행
 
   const fetchNotifications = async () => {
-    const res = await fetch("/notifications", {
-      headers: { Authorization: "Bearer " + token },
-    });
-    const data = await res.json();
-    setNotifications(data);
+    try {
+      const res = await fetch(`${API_NOTIFICATION_URL}/notifications`, {
+        headers: { Authorization: "Bearer " + token },
+      });
+      if (!res.ok) {
+        console.error("API Error:", res.status, res.statusText);
+        alert("알림을 불러오는데 실패했습니다.");
+        return;
+      }
+
+      const data = await res.json();
+      setNotifications(data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("알림을 불러오는데 실패했습니다.");
+    }
   };
 
   const markAsRead = async (notiId) => {
-    await fetch(`/notifications/${notiId}/read`, {
-      method: "PATCH",
-      headers: { Authorization: "Bearer " + token },
-    });
+    try {
+      await fetch(`${API_NOTIFICATION_URL}/notifications/${notiId}/read`, {
+        method: "PATCH",
+        headers: { Authorization: "Bearer " + token },
+      });
+    } catch (error) {
+      console.error("Mark as read error:", error);
+    }
   };
 
   const handleNotificationClick = async (noti) => {
@@ -68,14 +88,23 @@ const NotificationPage = () => {
 
 
   const connectSSE = () => {
-    const sse = new EventSource("/notifications/connect");
+    const sse = new EventSource(`${API_NOTIFICATION_URL}/notifications/stream/connect?token=${token}`);
 
-    sse.onmessage = (e) => {
-      const newNoti = JSON.parse(e.data);
-      setNotifications((prev) => [newNoti, ...prev]);
+    sse.onopen = () => {
+      console.log("SSE 연결 성공!");
     };
 
-    sse.onerror = () => {
+    sse.onmessage = (e) => {
+      try {
+        const newNoti = JSON.parse(e.data);
+        setNotifications((prev) => [newNoti, ...prev]); // 새 알림을 기존 목록에 추가
+      } catch (error) {
+        console.error("SSE 메시지 파싱 오류:", error);
+      }
+    };
+
+    sse.onerror = (error) => {
+      console.warn("SSE 오류 발생:", error);
       console.warn("SSE 재연결 시도 중...");
       sse.close();
       setTimeout(connectSSE, 5000);
@@ -88,24 +117,28 @@ const NotificationPage = () => {
   };
 
   return (
-    <div>
-      <h1>🔔 내 알림</h1>
-      <button onClick={logout}>로그아웃</button>
-      <div id="notifications">
-        {notifications.map((noti) => (
-          <div
-            key={noti.id}
-            className={`notification${noti.isRead ? "" : " unread"}`}
-            onClick={() => handleNotificationClick(noti)}
-          >
-            <div>{noti.content}</div>
-            <div className="timestamp">
-              {new Date(noti.createdAt).toLocaleString()}
-            </div>
-          </div>
-        ))}
+      <div>
+        <h1>🔔 내 알림</h1>
+        <button onClick={logout}>로그아웃</button>
+        <div id="notifications">
+          {notifications.length > 0 ? (
+              notifications.map((noti) => (
+                  <div
+                      key={noti.id}
+                      className={`notification${noti.isRead ? "" : " unread"}`}
+                      onClick={() => handleNotificationClick(noti)}
+                  >
+                    <div>{noti.content}</div>
+                    <div className="timestamp">
+                      {new Date(noti.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+              ))
+          ) : (
+              <div>알림이 없습니다.</div>
+          )}
+        </div>
       </div>
-    </div>
   );
 };
 

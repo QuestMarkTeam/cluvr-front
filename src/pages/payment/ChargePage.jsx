@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 
 
-const token = localStorage.getItem("accessToken");
+
 
 export default function ChargePage() {
     const [amount, setAmount] = useState('');
     const navigate = useNavigate();
+    const token = localStorage.getItem("accessToken");
 
     const handleAmountChange = (e) => {
         setAmount(e.target.value);

@@ -1,0 +1,93 @@
+/* 상단 바 */
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-name {
+    font-size: 1rem;
+    color: white;
+}
+
+.user-gem, .user-clover {
+    font-size: 1rem;
+    color: #ffeb3b; /* 보석과 클로버 아이콘 색상 */
+}
+
+/* 본문 콘텐츠 */
+.main-content {
+    padding: 20px;
+}
+
+.error-message {
+    color: red;
+    font-size: 1.2rem;
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+    padding: 50px;
+}
+
+/* 질문 목록 */
+.question-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.question-card {
+    background-color: #fff;
+    margin-bottom: 15px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.question-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.question-content {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.question-created-at {
+    font-size: 0.9rem;
+    color: #999;
+}
+
+/* 하단 바 */
+.footer {
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+    border-radius: 0 0 10px 10px;
+}
+
+.footer-btn {
+    background-color: #ff5722; /* 주황색 */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.footer-btn:hover {
+    background-color: #e64a19; /* hover 시 어두운 주황색 */
+}
+
+.footer-btn:active {
+    background-color: #d84315; /* 클릭 시 색상 */
+}

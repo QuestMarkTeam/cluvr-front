@@ -88,6 +88,7 @@ const Chat = () => {
     const [messages, setMessages] = useState([]);
     const [myUserId, setMyUserId] = useState(null);
     const [roomId, setRoomId] = useState(null);
+    const [connectionStatus, setConnectionStatus] = useState('연결 중...');
 
 
     // 소켓/구독/roomId 등은 useRef로 관리
@@ -237,19 +238,31 @@ const Chat = () => {
         }
         
         console.log('[WebSocket] 새로운 소켓 연결 시도');
-        socketRef.current = new SockJS(`${API_CHAT_URL}/ws/chat?token=${encodeURIComponent(token)}`);
+        socketRef.current = new SockJS(`${API_CHAT_URL}/ws/chat?token=${encodeURIComponent(token)}`, null, {
+            transports: ['websocket', 'xhr-streaming', 'xhr-polling'],
+            timeout: 5000,
+            heartbeat: 25000
+        });
         socketRef.current.onopen = () => {
             console.log('[WebSocket] 소켓 연결 open!');
+            setConnectionStatus('연결됨');
         };
         socketRef.current.onclose = (event) => {
             console.warn('[WebSocket] 소켓 연결 close!', event);
+            setConnectionStatus('연결 끊김');
         };
         socketRef.current.onerror = (event) => {
             console.error('[WebSocket] 소켓 에러!', event);
+            setConnectionStatus('연결 실패');
         };
         
         stompClientRef.current = Stomp.over(socketRef.current);
-        stompClientRef.current.connect({}, () => {
+        stompClientRef.current.connect({
+            heartbeat: {
+                outgoing: 10000,
+                incoming: 10000
+            }
+        }, () => {
             console.log('[WebSocket] STOMP 연결 성공, 채팅방 입장 시도');
             joinChatRoom(roomId).then(() => {
                 console.log('[WebSocket] 채팅방 입장 성공, 구독 시작');
@@ -283,6 +296,16 @@ const Chat = () => {
             fetchRoomMembers(roomId);
         }, (error) => {
             console.error('[WebSocket] STOMP 연결 실패:', error);
+            setConnectionStatus('연결 실패');
+            
+            // 3초 후 재연결 시도
+            setTimeout(() => {
+                if (currentRoomIdRef.current === roomId) {
+                    console.log('[WebSocket] 재연결 시도...');
+                    setConnectionStatus('재연결 중...');
+                    connectSocketAndSubscribe(roomId);
+                }
+            }, 3000);
         });
     }, [fetchRoomMembers, joinChatRoom]);
 
@@ -556,7 +579,7 @@ const Chat = () => {
                             id="messageInput"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="메시지를 입력하세요"
+                            placeholder={connectionStatus === '연결됨' ? "메시지를 입력하세요" : "연결 중..."}
                             disabled={!stompClientRef.current?.connected}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') sendMessage();
