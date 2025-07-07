@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const API_DOMAIN_URL = 'http://localhost:80'; // 개발용
-// const API_DOMAIN_URL = 'http://44.239.99.137:80'; // 배포용
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+
 
 export default function SignupPage() {
     const navigate = useNavigate();
