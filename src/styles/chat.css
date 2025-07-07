@@ -159,6 +159,31 @@ button:active {
     fill: #388e3c;
 }
 
+.connection-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+}
+
+.connection-status.connected {
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.connection-status.connecting {
+    color: #FF9800;
+    background: rgba(255, 152, 0, 0.1);
+}
+
+.connection-status.disconnected {
+    color: #F44336;
+    background: rgba(244, 67, 54, 0.1);
+}
+
 #chatBox {
     height: 350px;
     overflow-y: auto;
