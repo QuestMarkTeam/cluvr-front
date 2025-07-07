@@ -37,11 +37,23 @@ export default function CreateClubPage() {
     const navigate = useNavigate();
 
     const [profileImage, setProfileImage] = useState(null);
-    const [ setError] = useState('');
+    const [setError] = useState('');
+    const [posterImage, setPosterImage] = useState(null);
+    const [posterPreview, setPosterPreview] = useState('');
 
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
             setProfileImage(e.target.files[0]);
+        }
+    };
+
+    const handlePosterImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setPosterImage(e.target.files[0]);
+            setPosterPreview(URL.createObjectURL(e.target.files[0]));
+        } else {
+            setPosterImage(null);
+            setPosterPreview('');
         }
     };
 
@@ -233,13 +245,12 @@ export default function CreateClubPage() {
             alert('모든 필수 필드를 입력해주세요.');
             return;
         }
-        let posterUrl = null;
-        if (profileImage) {
+        let posterUrl = formData.posterUrl;
+        if (posterImage) {
             try {
-                posterUrl = await uploadImageToS3(profileImage);
-                // eslint-disable-next-line no-unused-vars
-            } catch (uploadError) {
-                showError('이미지 업로드에 실패했습니다.');
+                posterUrl = await uploadImageToS3(posterImage);
+            } catch (err) {
+                alert('이미지 업로드에 실패했습니다.');
                 return;
             }
         }
@@ -356,17 +367,32 @@ export default function CreateClubPage() {
                             required
                             rows="4"
                         />
-                        <input
-                            name="posterUrl"
-                            placeholder="포스터 이미지 URL"
-                            value={formData.posterUrl}
-                            onChange={handleInputChange}
-                            type="url"
-                            required
-                        />
-                        <div className="image-upload">
-                            <label>프로필 이미지 선택:</label>
-                            <input type="file" accept="image/*" onChange={handleImageChange}/>
+                        <div className="image-upload" style={{ marginBottom: 16 }}>
+                            <label style={{ display: 'block', marginBottom: 6 }}>포스터 이미지 선택:</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <label htmlFor="poster-image-upload" className="image-upload-label" style={{
+                                    background: '#f5f5f5',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '6px',
+                                    padding: '8px 16px',
+                                    cursor: 'pointer',
+                                    fontWeight: 500
+                                }}>
+                                    이미지 업로드
+                                    <input
+                                        type="file"
+                                        id="poster-image-upload"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={handlePosterImageChange}
+                                    />
+                                </label>
+                                {posterPreview ? (
+                                    <img src={posterPreview} alt="미리보기" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #ddd' }} />
+                                ) : (
+                                    <span style={{ color: '#aaa', fontSize: 14 }}>이미지를 선택하세요</span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -391,7 +417,7 @@ export default function CreateClubPage() {
                                     name="maxMemberCount"
                                     type="number"
                                     min="2"
-                                    max="10"
+                                    max="20"
                                     value={formData.maxMemberCount}
                                     onChange={handleInputChange}
                                 />

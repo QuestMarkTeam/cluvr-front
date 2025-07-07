@@ -13,7 +13,7 @@ export default function ClubDetailPage() {
     const [club, setClub] = useState(null);
     const [showJoinModal, setShowJoinModal] = useState(false);
     const [joinData, setJoinData] = useState({
-        joinType: 'DIRECT_JOIN',
+        joinType: '',
         answer: ''
     });
     const [loading, setLoading] = useState(true);
@@ -21,6 +21,15 @@ export default function ClubDetailPage() {
     useEffect(() => {
         fetchClubDetail();
     }, [clubId]);
+
+    useEffect(() => {
+        if (showJoinModal && club?.joinType) {
+            setJoinData(prev => ({
+                ...prev,
+                joinType: club.joinType
+            }));
+        }
+    }, [showJoinModal, club]);
 
     const fetchClubDetail = async () => {
         const token = localStorage.getItem('accessToken');
@@ -61,7 +70,7 @@ export default function ClubDetailPage() {
 
         const token = localStorage.getItem('accessToken');
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/joins/clubs/${clubId}/join`, {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clubs/${clubId}/join`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,6 +130,46 @@ export default function ClubDetailPage() {
             'OTHERS': '기타'
         };
         return categoryMap[categoryDetail] || categoryDetail;
+    };
+
+    // 다이렉트 조인 처리 함수
+    const handleDirectJoin = async () => {
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clubs/${clubId}/direct-join`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.status === 401) {
+                localStorage.clear();
+                alert('인증이 만료되었습니다. 다시 로그인해주세요.');
+                navigate('/login');
+                return;
+            }
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.result?.message || '바로 가입에 실패했습니다.');
+            }
+
+            alert('클럽에 바로 가입되었습니다!');
+            navigate('/club');
+        } catch (err) {
+            console.error('바로 가입 실패:', err);
+            alert(err.message || '바로 가입에 실패했습니다.');
+        }
+    };
+
+    // 가입 신청 버튼 클릭 핸들러
+    const handleJoinButtonClick = () => {
+        if (club?.joinType === 'DIRECT_JOIN') {
+            handleDirectJoin();
+        } else {
+            setShowJoinModal(true);
+        }
     };
 
     if (loading) {
@@ -188,7 +237,7 @@ export default function ClubDetailPage() {
                 <div className="join-button-container">
                     <button 
                         className="main-btn join-btn"
-                        onClick={() => setShowJoinModal(true)}
+                        onClick={handleJoinButtonClick}
                     >
                         가입 신청하기
                     </button>
