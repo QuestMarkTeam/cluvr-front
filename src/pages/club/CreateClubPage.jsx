@@ -241,7 +241,7 @@ export default function CreateClubPage() {
         e.preventDefault();
 
         // 필수 필드 검증
-        if (!formData.name || !formData.greeting || !formData.description || !formData.posterUrl) {
+        if (!formData.name || !formData.greeting || !formData.description) {
             alert('모든 필수 필드를 입력해주세요.');
             return;
         }
