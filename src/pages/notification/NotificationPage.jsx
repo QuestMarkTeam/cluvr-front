@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+
+const BASE_URL = "https://cluvr.co.kr";
+
 const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 
@@ -65,10 +68,31 @@ const NotificationPage = () => {
       );
     }
 
-    if (noti.targetType === "BOARD") {
-      window.location.href = `/boards/${noti.targetId}`;
+    const path = resolveNotificationPath(noti.targetType, noti.targetId);
+    if (path) {
+      window.location.href = BASE_URL + path;
+    } else {
+      alert("지원하지 않는 알림 유형입니다.");
     }
   };
+
+
+
+  function resolveNotificationPath(targetType, targetId) {
+    switch (targetType) {
+      case "BOARD":
+        return `/boards/${targetId}`;
+      case "USER":
+        return `/profile`; // 마이페이지 (자기 자신)
+      case "FOLLOW":
+        return `/users/${targetId}`; // 상대 프로필
+      case "CLUB":
+        return `/clubs/${targetId}`;
+      default:
+        return null;
+    }
+  }
+
 
   const connectSSE = () => {
     try {
