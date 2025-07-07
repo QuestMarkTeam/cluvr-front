@@ -26,6 +26,7 @@ export default function PaymentSuccessPage() {
         const amount = urlParams.get('amount');
         const gem = amount;
         const token = localStorage.getItem('accessToken');
+        console.log(token)
 
         try {
             const response = await fetch(`${API_DOMAIN_URL}/api/payments/confirm`, {

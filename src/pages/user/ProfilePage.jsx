@@ -170,13 +170,13 @@ export default function ProfilePage() {
 
                 {isLoggedIn && (
                     <div className="profile-menu">
-                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/my-clubs')}>
+                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/myclubs')}>
                             My Clubs
                         </button>
-                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/my-questions')}>
+                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/myquestions')}>
                             나의 질문
                         </button>
-                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/my-answers')}>
+                        <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/myanswers')}>
                             나의 답변
                         </button>
                         <button className="profile-menu-btn" onClick={() => handleMenuNavigation('/settings')}>

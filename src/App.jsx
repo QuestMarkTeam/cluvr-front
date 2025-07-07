@@ -26,6 +26,8 @@ import NoticeListPage from './pages/notice/NoticeListPage.jsx';
 import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
 import NoticeDetailPage from './pages/notice/NoticeDetailPage.jsx';
 import GemLogPage from './pages/gem/GemLogPage.jsx';
+import MyQuestionsPage from './pages/user/MyQuestionsPage.jsx';
+import MyAnswersPage from './pages/user/MyAnswersPage.jsx';
 
 function App() {
     return (
@@ -53,6 +55,8 @@ function App() {
                 <Route path="/payment/fail" element={<PaymentFailPage />} />
                 {/* 경로 - /유저  */}
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/myquestions" element={<MyQuestionsPage />} />
+                <Route path="/myanswers" element={<MyAnswersPage />} />
                 {/* 경로 - /채팅  */}
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/chatroomlist" element={<ChatRoomListPage />} />

@@ -1,0 +1,113 @@
+/* 스타일링을 위해 CSS를 추가합니다 */
+
+/* 상단 바 */
+.app-bar {
+    background-color: #4CAF50; /* 초록색 배경 */
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-name {
+    font-size: 1rem;
+    color: white;
+}
+
+.user-gem, .user-clover {
+    font-size: 1rem;
+    color: #ffeb3b; /* 보석과 클로버 아이콘 색상 */
+}
+
+/* 메인 콘텐츠 */
+.main-content {
+    padding: 20px;
+}
+
+.error-message {
+    color: red;
+    font-size: 1.2rem;
+}
+
+/* 답변 리스트 */
+.reply-list {
+    list-style: none;
+    padding: 0;
+}
+
+.reply-card {
+    background-color: #f9f9f9;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.reply-content {
+    font-size: 1rem;
+    color: #333;
+}
+
+.reply-time {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #888;
+    padding: 50px;
+}
+
+/* 하단 바 */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.pagination-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    background-color: #d3d3d3;
+}
+
+.home-btn {
+    background-color: #ff5722; /* 홈 버튼 색상 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.home-btn:hover {
+    background-color: #e64a19; /* 버튼 hover 색상 */
+}
+
+.home-btn:active {
+    background-color: #d84315; /* 클릭 시 색상 */
+}

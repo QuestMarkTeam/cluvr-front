@@ -244,6 +244,8 @@ export default function BoardDetailPage() {
     const handleSelectBestReply = async (replyId) => {
         if (!board) return;
         const token = localStorage.getItem('accessToken');
+        console.log(board.id)
+        console.log(replyId)
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/boards/${board.id}/replies/${replyId}/best-recommendation`, {
                 method: 'POST',
@@ -256,6 +258,7 @@ export default function BoardDetailPage() {
             alert('댓글이 채택되었습니다!');
             // 페이지 새로고침 (전체 상태 초기화)
             window.location.reload();
+            // eslint-disable-next-line no-unused-vars
         } catch (err) {
             alert('댓글 채택 실패');
         }
