@@ -112,10 +112,10 @@ body {
   background: #34D399;
 }
 .tab-bar {
-  margin: 10px 400px 10px 400px;
+  margin: 10px 400px 0px 400px;
   position: fixed;
   left: 0; right: 0; bottom: 0;
-  height: 56px;
+  height: 70px;
   background: #fff;
   border-top: 1.5px solid #e5e5e5;
   display: flex;
