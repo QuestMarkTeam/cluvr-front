@@ -174,17 +174,17 @@ export default function ProfilePage() {
                     {isLoggedIn ? (
                         <>
                         <img
-                                src="img/avatar-default.png"
-                                className="profile-avatar"
-                                alt="User Avatar"
-                                onError={(e) => (e.target.style.display = 'none')}
-                            />
-                            <div className="profile-nickname">{userInfo.userName}</div>
-                            <div className="profile-email">{userInfo.userEmail}</div>
-                            <div className="profile-gem">💎 {userProfile?.gem || 0}</div>
-                            <button className="profile-edit" onClick={() => handleMenuNavigation('/edit-profile')}>
-                                &#9881;
-                            </button>
+                            src={userProfile?.imageUrl ? userProfile.imageUrl : "https://cluvr-image.s3.us-west-2.amazonaws.com/images/cluvr_default.png"}
+                            className="profile-avatar"
+                            alt="User Avatar"
+                            onError={e => { e.target.onerror = null; e.target.src = "https://cluvr-image.s3.us-west-2.amazonaws.com/images/cluvr_default.png"; }}
+                        />
+                        <div className="profile-nickname">{userInfo.userName}</div>
+                        <div className="profile-email">{userInfo.userEmail}</div>
+                        <div className="profile-gem">💎 {userProfile?.gem || 0}</div>
+                        <button className="profile-edit" onClick={() => handleMenuNavigation('/edit-profile')}>
+                            &#9881;
+                        </button>
                         </>
                     ) : (
                         <Link to="/login" className="profile-login-btn">
