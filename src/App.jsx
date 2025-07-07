@@ -22,6 +22,8 @@ import ChatPage from './pages/chat/ChatPage.jsx';
 import ChatRoomListPage from './pages/chat/ChatRoomListPage.jsx';
 import CreateChatRoomPage from './pages/chat/CreateChatRoomPage.jsx';
 import NotificationPage from './pages/notification/NotificationPage.jsx';
+import NoticeListPage from './pages/notice/NoticeListPage.jsx';
+import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
 
 function App() {
     return (
@@ -53,6 +55,9 @@ function App() {
                 <Route path="/chat" element={<ChatPage />} />
                 <Route path="/chatroomlist" element={<ChatRoomListPage />} />
                 <Route path="/crateroom" element={<CreateChatRoomPage />} />
+                {/* 경로 - /공지사항 */}
+                <Route path="/notice/list" element={<NoticeListPage />} />
+                <Route path="/notice/create" element={<NoticeCreatePage />} />
                 {/* 경로 - /알림 */}
                 <Route path="/notifications" element={<NotificationPage />} />
                 {/* 없는 경로 처리 */}
