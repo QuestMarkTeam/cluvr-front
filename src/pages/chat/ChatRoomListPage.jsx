@@ -50,7 +50,6 @@ const ChatRoomList = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-        console.log('챗룸리스트도착')
         if (!clubId || !token) {
             alert('잘못된 접근입니다.');
             return;
@@ -61,6 +60,8 @@ const ChatRoomList = () => {
         const fetchChatRooms = async () => {
             setLoading(true);
             try {
+                const token = localStorage.getItem('accessToken');
+                console.log('ChatRoomListPage accessToken:', token);
                 const response = await fetch(`${API_CHAT_URL}/api/clubs/${clubId}/chat/list`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
