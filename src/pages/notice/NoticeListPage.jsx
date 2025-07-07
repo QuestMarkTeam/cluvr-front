@@ -105,7 +105,7 @@ const NoticeListPage = () => {
             }
             const data = await res.json();
             console.log('공지사항 목록 API 성공 응답:', data);
-            setNotices(data.data?.content || []);
+            setNotices(Array.isArray(data.data?.content) ? data.data.content : []);
             setLoading(false);
         } catch (err) {
             console.error('공지사항 불러오기 오류:', err);
@@ -149,7 +149,6 @@ const NoticeListPage = () => {
             {/* 상단바 */}
             <header className="app-bar" style={{ position: 'relative' }}>
                 <button className="icon-btn" onClick={() => navigate(`/chatroomlist?clubId=${clubId}`)}>&larr;</button>
-                <h1 className="app-title">공지사항</h1>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
@@ -223,10 +222,10 @@ const NoticeListPage = () => {
                                 )}
                             </div>
 
-                            {notices.length > 0 ? (
+                            {Array.isArray(notices) && notices.length > 0 ? (
                                 <div>
                                     {notices.map((notice) => (
-                                        <div key={notice.id} style={{
+                                        <div key={notice.noticeId || notice.id} style={{
                                             padding: '16px',
                                             backgroundColor: '#f8f9fa',
                                             borderRadius: '8px',
@@ -237,7 +236,7 @@ const NoticeListPage = () => {
                                         }}
                                         onMouseEnter={(e) => e.target.style.backgroundColor = '#e9ecef'}
                                         onMouseLeave={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                        onClick={() => navigate(`/notice/detail?clubId=${clubId}&noticeId=${notice.id}`)}
+                                        onClick={() => navigate(`/notice/detail?clubId=${clubId}&noticeId=${notice.noticeId || notice.id}`)}
                                         >
                                             <div style={{
                                                 fontSize: '1rem',
@@ -253,13 +252,13 @@ const NoticeListPage = () => {
                                                 marginBottom: '8px',
                                                 lineHeight: '1.4'
                                             }}>
-                                                {notice.content.length > 100 ? notice.content.substring(0, 100) + '...' : notice.content}
+                                                {(notice.content && typeof notice.content === 'string') ? (notice.content.length > 100 ? notice.content.substring(0, 100) + '...' : notice.content) : ''}
                                             </div>
                                             <div style={{
                                                 fontSize: '0.8rem',
                                                 color: '#999'
                                             }}>
-                                                {new Date(notice.createdAt).toLocaleDateString()}
+                                                {notice.createdAt ? new Date(notice.createdAt).toLocaleDateString() : ''}
                                             </div>
                                         </div>
                                     ))}

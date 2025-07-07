@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../../styles/club.css';
 import '../../styles/category.css';
 import TabBar from "../../components/TabBar.jsx";
@@ -121,7 +121,7 @@ const NoticeCreatePage = () => {
             }
 
             alert('공지사항이 작성되었습니다!');
-            navigate(`/notice/list?clubId=${clubId}`);
+            navigate(`/chatroomlist?clubId=${clubId}`);
         } catch (err) {
             console.error('공지사항 작성 실패:', err);
             alert(err.message || '공지사항 작성에 실패했습니다.');
@@ -163,7 +163,6 @@ const NoticeCreatePage = () => {
             {/* 상단바 */}
             <header className="app-bar" style={{ position: 'relative' }}>
                 <button className="icon-btn" onClick={() => navigate(`/notice/list?clubId=${clubId}`)}>&larr;</button>
-                <h1 className="app-title">공지사항 작성</h1>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>

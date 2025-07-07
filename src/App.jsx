@@ -24,6 +24,7 @@ import CreateChatRoomPage from './pages/chat/CreateChatRoomPage.jsx';
 import NotificationPage from './pages/notification/NotificationPage.jsx';
 import NoticeListPage from './pages/notice/NoticeListPage.jsx';
 import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
+import NoticeDetailPage from './pages/notice/NoticeDetailPage.jsx';
 
 function App() {
     return (
@@ -58,6 +59,7 @@ function App() {
                 {/* 경로 - /공지사항 */}
                 <Route path="/notice/list" element={<NoticeListPage />} />
                 <Route path="/notice/create" element={<NoticeCreatePage />} />
+                <Route path="/notice/detail" element={<NoticeDetailPage />} />
                 {/* 경로 - /알림 */}
                 <Route path="/notifications" element={<NotificationPage />} />
                 {/* 없는 경로 처리 */}

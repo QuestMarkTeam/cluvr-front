@@ -305,7 +305,6 @@ const ChatRoomList = () => {
                                                     fontSize: '0.7rem',
                                                     color: '#999'
                                                 }}>
-                                                    공지사항
                                                 </div>
                                             </div>
                                         ))}
