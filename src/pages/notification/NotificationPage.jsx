@@ -22,10 +22,13 @@ const NotificationPage = () => {
 
   const fetchNotifications = async () => {
     try {
+
       const res = await fetch(`${API_NOTIFICATION_URL}/notifications`, {
+
         headers: { Authorization: "Bearer " + token },
       });
-
+      console.log('111111111111111111111111');
+      console.log(API_NOTIFICATION_URL);
       if (!res.ok) {
         console.error("API Error:", res.status, res.statusText);
         alert("알림을 불러오는데 실패했습니다.");
@@ -41,6 +44,8 @@ const NotificationPage = () => {
   };
 
   const markAsRead = async (notiId) => {
+    console.log('22222222222222222222222222222222');
+    console.log(API_NOTIFICATION_URL);
     try {
       await fetch(`${API_NOTIFICATION_URL}/notifications/${notiId}/read`, {
         method: "PATCH",
@@ -52,6 +57,7 @@ const NotificationPage = () => {
   };
 
   const handleNotificationClick = async (noti) => {
+    console.log(noti)
     if (!noti.isRead) {
       await markAsRead(noti.id);
       setNotifications((prev) =>
