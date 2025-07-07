@@ -17,6 +17,7 @@ export default function SignupPage() {
         confirmPassword: '',
     });
     const [profileImage, setProfileImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
     const [error, setError] = useState('');
 
     const handleChange = (e) => {
@@ -26,6 +27,10 @@ export default function SignupPage() {
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
             setProfileImage(e.target.files[0]);
+            setImagePreview(URL.createObjectURL(e.target.files[0]));
+        } else {
+            setProfileImage(null);
+            setImagePreview('');
         }
     };
 
@@ -226,9 +231,32 @@ export default function SignupPage() {
                     required
                 />
 
-                <div className="image-upload">
-                    <label>프로필 이미지 선택:</label>
-                    <input type="file" accept="image/*" onChange={handleImageChange} />
+                <div className="image-upload" style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 6 }}>프로필 이미지 선택:</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <label htmlFor="profile-image-upload" className="image-upload-label" style={{
+                            background: '#f5f5f5',
+                            border: '1px solid #ccc',
+                            borderRadius: '6px',
+                            padding: '8px 16px',
+                            cursor: 'pointer',
+                            fontWeight: 500
+                        }}>
+                            이미지 업로드
+                            <input
+                                type="file"
+                                id="profile-image-upload"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={handleImageChange}
+                            />
+                        </label>
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="미리보기" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #ddd' }} />
+                        ) : (
+                            <span style={{ color: '#aaa', fontSize: 14 }}>이미지를 선택하세요</span>
+                        )}
+                    </div>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}
