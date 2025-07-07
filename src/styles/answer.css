@@ -1,19 +1,7 @@
 /* 스타일링을 위해 CSS를 추가합니다 */
 
 /* 상단 바 */
-.app-bar {
-    background-color: #4CAF50; /* 초록색 배경 */
-    color: white;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 
-.app-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
 
 .user-info {
     display: flex;

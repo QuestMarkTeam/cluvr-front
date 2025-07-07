@@ -1,18 +1,4 @@
 /* 상단 바 */
-.app-bar {
-    background-color: #4CAF50; /* 초록색 배경 */
-    color: white;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 10px 10px 0 0;
-}
-
-.app-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
 
 .user-info {
     display: flex;
