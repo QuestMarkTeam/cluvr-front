@@ -145,9 +145,16 @@ export default function BoardPage() {
                                 style={{ cursor: 'pointer' }}
                             >
                                 <div className="group-info">
-                                    <div className="group-title">{board.title}</div>
-                                    <div className="group-meta">
-                                        by {board.userName || '익명'} · {board.createdAt?.split('T')[0]}
+                                    {/* 첫 번째 줄: 제목과 작성자 정보 */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                                        <div className="group-title" style={{ flex: 1, marginRight: 16 }}>{board.title}</div>
+                                        <div className="group-meta" style={{ whiteSpace: 'nowrap' }}>
+                                            {board.userName || '익명'} · {board.createdAt?.split('T')[0]}
+                                        </div>
+                                    </div>
+                                    {/* 두 번째 줄: 조회수 */}
+                                    <div className="group-views" style={{ fontSize: '0.9rem', color: '#666' }}>
+                                        <span>조회수 {board.viewCount || 0}</span>
                                     </div>
                                 </div>
                             </li>

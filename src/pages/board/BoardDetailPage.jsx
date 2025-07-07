@@ -16,6 +16,7 @@ export default function BoardDetailPage() {
     const [showReplyChildren, setShowReplyChildren] = useState({}); // replyId별 대댓글 표시 여부
     const [replyChildInputs, setReplyChildInputs] = useState({}); // replyId별 대댓글 입력값
     const [commentReactions, setCommentReactions] = useState({}); // replyId별 {like: boolean, dislike: boolean, likeCount, dislikeCount}
+    const [boardReactions, setBoardReactions] = useState({ like: false, dislike: false }); // 게시글 리액션 상태
 
     useEffect(() => {
         fetchBoardDetail();
@@ -51,19 +52,38 @@ export default function BoardDetailPage() {
 
     const fetchComments = async () => {
         const token = localStorage.getItem('accessToken');
+        console.log('fetchComments 호출됨, boardId:', boardId); // 디버깅용
+        console.log('토큰:', token ? '존재함' : '없음'); // 디버깅용
+        
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/boards/${boardId}/replies`, {
+            const url = `${API_DOMAIN_URL}/api/boards/${boardId}/replies`;
+            console.log('댓글 API URL:', url); // 디버깅용
+            
+            const res = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    'Authorization': `Bearer ${token}`
                 }
             });
+            
+            console.log('댓글 API 응답 상태:', res.status); // 디버깅용
+            
             if (res.status === 401) {
+                console.log('401 에러: 인증 실패'); // 디버깅용
                 localStorage.clear();
                 return;
             }
-            if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
+            
+            if (!res.ok) {
+                console.log('API 응답 실패:', res.status, res.statusText); // 디버깅용
+                throw new Error('댓글을 불러오지 못했습니다.');
+            }
+            
             const data = await res.json();
+            console.log('댓글 API 전체 응답:', data); // 디버깅용
+            console.log('댓글 데이터:', data.data); // 디버깅용
+            console.log('댓글 content:', data.data?.content); // 디버깅용
+            
             setComments(data.data?.content || []);
         } catch (err) {
             console.error('댓글 불러오기 오류:', err);
@@ -172,17 +192,47 @@ export default function BoardDetailPage() {
                 body: JSON.stringify(body)
             });
             if (!res.ok) throw new Error('리액션 실패');
+            
+            // 로컬 리액션 상태 업데이트
             setCommentReactions(prev => ({
                 ...prev,
                 [replyId]: {
                     like: type === 'LIKE' ? !isSelected : prev[replyId]?.like || false,
-                    dislike: type === 'DISLIKE' ? !isSelected : prev[replyId]?.dislike || false,
-                    likeCount: type === 'LIKE' ? (prev[replyId]?.likeCount || 0) + (isSelected ? -1 : 1) : prev[replyId]?.likeCount || 0,
-                    dislikeCount: type === 'DISLIKE' ? (prev[replyId]?.dislikeCount || 0) + (isSelected ? -1 : 1) : prev[replyId]?.dislikeCount || 0
+                    dislike: type === 'DISLIKE' ? !isSelected : prev[replyId]?.dislike || false
                 }
             }));
+            
+            // 댓글 목록 새로고침 (실제 카운트 반영)
+            fetchComments();
         } catch (err) {
             alert('댓글 리액션 처리 실패');
+        }
+    };
+
+    // 게시글 리액션 핸들러
+    const handleBoardReaction = async (type, isSelected) => {
+        if (!board) return;
+        const token = localStorage.getItem('accessToken');
+        const url = `${API_DOMAIN_URL}/api/reactions`;
+        const body = { reactionType: type, boardId: board.id }; // replyId 없음 = 게시글 리액션
+        try {
+            const res = await fetch(url, {
+                method: isSelected ? 'DELETE' : 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) throw new Error('리액션 실패');
+            setBoardReactions(prev => ({
+                like: type === 'LIKE' ? !isSelected : prev.like,
+                dislike: type === 'DISLIKE' ? !isSelected : prev.dislike
+            }));
+            // 게시글 정보 새로고침 (리액션 카운트 업데이트)
+            fetchBoardDetail();
+        } catch (err) {
+            alert('게시글 리액션 처리 실패');
         }
     };
 
@@ -230,6 +280,28 @@ export default function BoardDetailPage() {
                             </div>
                             {/* 본문 */}
                             <div className="detail-content" style={{ marginBottom: 20 }}>{board.content}</div>
+                            
+                            {/* 게시글 리액션 */}
+                            <div className="reply-reaction" style={{ marginTop: 16 }}>
+                                <button
+                                    className={`reply-reaction-btn${boardReactions?.like ? ' liked' : ''}`}
+                                    onClick={() => handleBoardReaction('LIKE', boardReactions?.like)}
+                                    aria-label="좋아요"
+                                    type="button"
+                                >
+                                    <span style={{fontSize: '1.2em'}}>👍</span>
+                                    {board?.like ?? 0}
+                                </button>
+                                <button
+                                    className={`reply-reaction-btn${boardReactions?.dislike ? ' disliked' : ''}`}
+                                    onClick={() => handleBoardReaction('DISLIKE', boardReactions?.dislike)}
+                                    aria-label="싫어요"
+                                    type="button"
+                                >
+                                    <span style={{fontSize: '1.2em'}}>👎</span>
+                                    {board?.dislike ?? 0}
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '20px 0' }}>로딩 중...</div>
@@ -280,7 +352,7 @@ export default function BoardDetailPage() {
                                         type="button"
                                     >
                                         <span style={{fontSize: '1.2em'}}>👍</span>
-                                        {commentReactions[comment.id]?.likeCount ?? 0}
+                                        {comment.like ?? 0}
                                     </button>
                                     <button
                                         className={`reply-reaction-btn${commentReactions[comment.id]?.dislike ? ' disliked' : ''}`}
@@ -289,7 +361,7 @@ export default function BoardDetailPage() {
                                         type="button"
                                     >
                                         <span style={{fontSize: '1.2em'}}>👎</span>
-                                        {commentReactions[comment.id]?.dislikeCount ?? 0}
+                                        {comment.dislike ?? 0}
                                     </button>
                                     <span
                                         style={{color: '#6EE7B7', fontSize: '0.98em', marginLeft: 12, cursor: 'pointer', userSelect: 'none'}}
