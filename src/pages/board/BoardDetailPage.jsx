@@ -36,16 +36,16 @@ export default function BoardDetailPage() {
                     'Authorization': `Bearer ${token}`, // 토큰을 헤더에 추가
                 }
             });
-            
+
             if (res.status === 401) {
                 localStorage.clear();
                 return;
             }
-            
+
             if (!res.ok) {
                 throw new Error('게시글을 불러오지 못했습니다.');
             }
-            
+
             const data = await res.json();
             console.log('게시글 데이터:', data.data); // 디버깅용
             setBoard(data.data);
@@ -58,36 +58,36 @@ export default function BoardDetailPage() {
         const token = localStorage.getItem('accessToken');
         console.log('fetchComments 호출됨, boardId:', boardId); // 디버깅용
         console.log('토큰:', token ? '존재함' : '없음'); // 디버깅용
-        
+
         try {
             const url = `${API_DOMAIN_URL}/api/boards/${boardId}/replies`;
             console.log('댓글 API URL:', url); // 디버깅용
-            
+
             const res = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            
+
             console.log('댓글 API 응답 상태:', res.status); // 디버깅용
-            
+
             if (res.status === 401) {
                 console.log('401 에러: 인증 실패'); // 디버깅용
                 localStorage.clear();
                 return;
             }
-            
+
             if (!res.ok) {
                 console.log('API 응답 실패:', res.status, res.statusText); // 디버깅용
                 throw new Error('댓글을 불러오지 못했습니다.');
             }
-            
+
             const data = await res.json();
             console.log('댓글 API 전체 응답:', data); // 디버깅용
             console.log('댓글 데이터:', data.data); // 디버깅용
             console.log('댓글 content:', data.data?.content); // 디버깅용
-            
+
             setComments(data.data?.content || []);
         } catch (err) {
             console.error('댓글 불러오기 오류:', err);
@@ -196,7 +196,7 @@ export default function BoardDetailPage() {
                 body: JSON.stringify(body)
             });
             if (!res.ok) throw new Error('리액션 실패');
-            
+
             // 로컬 리액션 상태 업데이트
             setCommentReactions(prev => ({
                 ...prev,
@@ -205,7 +205,7 @@ export default function BoardDetailPage() {
                     dislike: type === 'DISLIKE' ? !isSelected : prev[replyId]?.dislike || false
                 }
             }));
-            
+
             // 댓글 목록 새로고침 (실제 카운트 반영)
             fetchComments();
         } catch (err) {
@@ -267,7 +267,7 @@ export default function BoardDetailPage() {
     const fetchUserProfile = async () => {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
-        
+
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/users/me`, {
                 method: 'GET',
@@ -282,7 +282,7 @@ export default function BoardDetailPage() {
             }
             if (!res.ok) throw new Error('사용자 정보를 불러오지 못했습니다.');
             const data = await res.json();
-            
+
             setUserInfo({
                 userName: data.data.name || '사용자',
                 gem: data.data.gem || 0,
@@ -301,7 +301,7 @@ export default function BoardDetailPage() {
     const fetchNotifications = async () => {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
-        
+
         try {
             const res = await fetch(`${API_DOMAIN_URL}/api/notifications`, {
                 method: 'GET',
@@ -332,8 +332,8 @@ export default function BoardDetailPage() {
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
-                    <button 
-                        className="icon-btn" 
+                    <button
+                        className="icon-btn"
                         onClick={handleNotificationClick}
                         style={{ fontSize: '1.2rem', color: '#666' }}
                     >
@@ -342,23 +342,29 @@ export default function BoardDetailPage() {
                 </div>
             </header>
 
-            <main className="main-content" style={{ paddingTop: 0 }}>
+            <main className="main-content" style={{paddingTop: 0}}>
                 {/* 게시글 */}
                 <div className="detail-card">
                     {board ? (
                         <>
                             {/* 제목 + 작성자/날짜 한 줄 */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                <div className="detail-title" style={{ marginBottom: 0 }}>{board.title}</div>
-                                <div className="detail-meta" style={{ fontSize: '1rem', color: '#888', marginLeft: 16, whiteSpace: 'nowrap' }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: 8
+                            }}>
+                                <div className="detail-title" style={{marginBottom: 0}}>{board.title}</div>
+                                <div className="detail-meta"
+                                     style={{fontSize: '1rem', color: '#888', marginLeft: 16, whiteSpace: 'nowrap'}}>
                                     {board.userName || '익명'} · {board.createdAt?.split('T')[0]}
                                 </div>
                             </div>
                             {/* 본문 */}
-                            <div className="detail-content" style={{ marginBottom: 20 }}>{board.content}</div>
-                            
+                            <div className="detail-content" style={{marginBottom: 20}}>{board.content}</div>
+
                             {/* 게시글 리액션 */}
-                            <div className="reply-reaction" style={{ marginTop: 16 }}>
+                            <div className="reply-reaction" style={{marginTop: 16}}>
                                 <button
                                     className={`reply-reaction-btn${boardReactions?.like ? ' liked' : ''}`}
                                     onClick={() => handleBoardReaction('LIKE', boardReactions?.like)}
@@ -380,28 +386,33 @@ export default function BoardDetailPage() {
                             </div>
                         </>
                     ) : (
-                        <div style={{ textAlign: 'center', padding: '20px 0' }}>로딩 중...</div>
+                        <div style={{textAlign: 'center', padding: '20px 0'}}>로딩 중...</div>
                     )}
                 </div>
 
                 {/* 댓글 리스트 */}
-                <h3 style={{ margin: '16px 0 8px 0' }}>댓글</h3>
+                <h3 style={{margin: '16px 0 8px 0'}}>댓글</h3>
                 <ul className="comment-list">
                     {comments.length === 0 ? (
-                        <div style={{ color: '#888', textAlign: 'center' }}>댓글이 없습니다.</div>
+                        <div style={{color: '#888', textAlign: 'center'}}>댓글이 없습니다.</div>
                     ) : (
                         [...comments].reverse().map((comment) => (
-                            <li className="comment-item" key={comment.id}>
+                            <li className={`comment-item ${comment.isBest ? 'best-comment' : ''}`} key={comment.id}>
                                 {/* 첫 줄: 작성자 + 날짜 + 채택 버튼 */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: 8
+                                }}>
                                     <div className="comment-meta">
                                         {comment.userName || '익명'} · {comment.createdAt?.split('T')[0]}
                                     </div>
                                     {/* 채택 버튼 - 오른쪽 끝에 배치 */}
                                     {board?.author && board?.boardType === 'QUESTION' && !board?.isSelected && (
                                         <button
-                                            style={{ 
-                                                padding: '2px 6px', 
+                                            style={{
+                                                padding: '2px 6px',
                                                 fontSize: '0.7rem',
                                                 marginLeft: 8,
                                                 backgroundColor: '#6EE7B7',
@@ -409,7 +420,7 @@ export default function BoardDetailPage() {
                                                 border: 'none',
                                                 borderRadius: '4px',
                                                 cursor: 'pointer',
-                                                fontWeight: 'bold'
+                                                fontWeight: 'bold',
                                             }}
                                             onClick={() => handleSelectBestReply(comment.id)}
                                         >
@@ -418,8 +429,11 @@ export default function BoardDetailPage() {
                                     )}
                                 </div>
                                 {/* 두 번째 줄: 댓글 내용 */}
-                                <div className="comment-content">{comment.content}</div>
-                                {/* 댓글 리액션 (유튜브 스타일) */}
+                                <div className="comment-content">
+                                    {comment.content}
+                                    {comment.isBest && <span className="best-label">채택됨</span>}
+                                </div>
+                                {/* 댓글 리액션 */}
                                 <div className="reply-reaction">
                                     <button
                                         className={`reply-reaction-btn${commentReactions[comment.id]?.like ? ' liked' : ''}`}
@@ -440,41 +454,60 @@ export default function BoardDetailPage() {
                                         {comment.dislike ?? 0}
                                     </button>
                                     <span
-                                        style={{color: '#6EE7B7', fontSize: '0.98em', marginLeft: 12, cursor: 'pointer', userSelect: 'none'}}
+                                        style={{
+                                            color: '#6EE7B7',
+                                            fontSize: '0.98em',
+                                            marginLeft: 12,
+                                            cursor: 'pointer',
+                                            userSelect: 'none',
+                                        }}
                                         onClick={() => toggleReplyChildren(comment.id)}
                                     >
-                                        {showReplyChildren[comment.id] ? '∧ 댓글 숨기기' : '∨ 댓글'}
-                                    </span>
+                        {showReplyChildren[comment.id] ? '∧ 댓글 숨기기' : '∨ 댓글'}
+                    </span>
                                 </div>
                                 {/* 대댓글 목록 */}
                                 {showReplyChildren[comment.id] && (
-                                    <ul className="reply-child-list" style={{ marginLeft: 16, marginTop: 8 }}>
+                                    <ul className="reply-child-list" style={{marginLeft: 16, marginTop: 8}}>
                                         {(replyChildren[comment.id] || []).length === 0 ? (
-                                            <li style={{ color: '#aaa', fontSize: '0.95rem' }}>대댓글이 없습니다.</li>
+                                            <li style={{color: '#aaa', fontSize: '0.95rem'}}>대댓글이 없습니다.</li>
                                         ) : (
-                                            replyChildren[comment.id].map(child => (
-                                                <li key={child.id} style={{ marginBottom: 8, listStyle: 'none', border: 'none', backgroundColor: 'transparent', padding: 0, boxShadow: 'none', borderRadius: 0 }}>
+                                            replyChildren[comment.id].map((child) => (
+                                                <li
+                                                    key={child.id}
+                                                    style={{
+                                                        marginBottom: 8,
+                                                        listStyle: 'none',
+                                                        border: 'none',
+                                                        backgroundColor: 'transparent',
+                                                        padding: 0,
+                                                        boxShadow: 'none',
+                                                        borderRadius: 0,
+                                                    }}
+                                                >
                                                     <div className="comment-meta">
                                                         {child.userName || '익명'} · {child.createdAt?.split('T')[0]}
                                                     </div>
-                                                    <div className="comment-content">
-                                                        {child.content}
-                                                    </div>
+                                                    <div className="comment-content">{child.content}</div>
                                                 </li>
                                             ))
                                         )}
                                         {/* 대댓글 입력창 */}
-                                        <li style={{ marginTop: 8 }}>
-                                            <form onSubmit={e => handleReplyChildSubmit(e, comment.id)} style={{ display: 'flex', gap: 8 }}>
+                                        <li style={{marginTop: 8}}>
+                                            <form onSubmit={(e) => handleReplyChildSubmit(e, comment.id)}
+                                                  style={{display: 'flex', gap: 8}}>
                                                 <input
                                                     type="text"
                                                     placeholder="대댓글을 입력하세요"
                                                     value={replyChildInputs[comment.id] || ''}
-                                                    onChange={e => handleReplyChildInputChange(e, comment.id)}
-                                                    style={{ flex: 1 }}
+                                                    onChange={(e) => handleReplyChildInputChange(e, comment.id)}
+                                                    style={{flex: 1}}
                                                     required
                                                 />
-                                                <button type="submit" className="main-btn" style={{ width: 80, minWidth: 0, padding: 0 }}>등록</button>
+                                                <button type="submit" className="main-btn"
+                                                        style={{width: 80, minWidth: 0, padding: 0}}>
+                                                    등록
+                                                </button>
                                             </form>
                                         </li>
                                     </ul>
@@ -483,6 +516,7 @@ export default function BoardDetailPage() {
                         ))
                     )}
                 </ul>
+
 
                 {/* 댓글 작성 */}
                 <form className="comment-form" onSubmit={handleSubmit}>
@@ -530,8 +564,8 @@ export default function BoardDetailPage() {
                         borderBottom: '1px solid #eee',
                         backgroundColor: '#f8f9fa'
                     }}>
-                        <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 'bold' }}>알림</h4>
-                        <button 
+                        <h4 style={{margin: 0, fontSize: '1rem', fontWeight: 'bold'}}>알림</h4>
+                        <button
                             onClick={() => setShowNotificationModal(false)}
                             style={{
                                 background: 'none',
@@ -577,8 +611,8 @@ export default function BoardDetailPage() {
                                         cursor: 'pointer',
                                         transition: 'background-color 0.2s'
                                     }}
-                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                                     >
                                         <div style={{
                                             fontSize: '0.9rem',

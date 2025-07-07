@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+
 const BASE_URL = "https://cluvr.co.kr";
 
 const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+
 
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
@@ -19,13 +21,17 @@ const NotificationPage = () => {
 
     fetchNotifications();
     connectSSE();
-  }, [token]); // token이 변경될 때마다 실행
+  }, []);
 
   const fetchNotifications = async () => {
     try {
+
       const res = await fetch(`${API_NOTIFICATION_URL}/notifications`, {
+
         headers: { Authorization: "Bearer " + token },
       });
+      console.log('111111111111111111111111');
+      console.log(API_NOTIFICATION_URL);
       if (!res.ok) {
         console.error("API Error:", res.status, res.statusText);
         alert("알림을 불러오는데 실패했습니다.");
@@ -41,6 +47,8 @@ const NotificationPage = () => {
   };
 
   const markAsRead = async (notiId) => {
+    console.log('22222222222222222222222222222222');
+    console.log(API_NOTIFICATION_URL);
     try {
       await fetch(`${API_NOTIFICATION_URL}/notifications/${notiId}/read`, {
         method: "PATCH",
@@ -52,6 +60,7 @@ const NotificationPage = () => {
   };
 
   const handleNotificationClick = async (noti) => {
+    console.log(noti)
     if (!noti.isRead) {
       await markAsRead(noti.id);
       setNotifications((prev) =>
@@ -66,6 +75,8 @@ const NotificationPage = () => {
       alert("지원하지 않는 알림 유형입니다.");
     }
   };
+
+
 
   function resolveNotificationPath(targetType, targetId) {
     switch (targetType) {
@@ -82,37 +93,40 @@ const NotificationPage = () => {
     }
   }
 
-  // SSE 연결 처리
+
   const connectSSE = () => {
-    const sse = new EventSource(`${API_NOTIFICATION_URL}/notifications/stream/connect?token=${token}`);
+    try {
+      // API_NOTIFICATION_URL 사용하고 토큰을 파라미터로 전달
+      const sse = new EventSource(`${API_NOTIFICATION_URL}/notifications/stream/connect?token=${token}`);
 
-    sse.onopen = () => {
-      console.log("SSE 연결 성공!");
-    };
+      sse.onopen = () => {
+        console.log("SSE 연결 성공!");
+      };
 
-    sse.onmessage = (e) => {
-      try {
-        const newNoti = JSON.parse(e.data);
-        setNotifications((prev) => [newNoti, ...prev]); // 새 알림을 기존 목록에 추가
-      } catch (error) {
-        console.error("SSE 메시지 파싱 오류:", error);
-      }
-    };
+      sse.onmessage = (e) => {
+        try {
+          const newNoti = JSON.parse(e.data);
+          setNotifications((prev) => [newNoti, ...prev]);
+        } catch (error) {
+          console.error("SSE 메시지 파싱 오류:", error);
+        }
+      };
 
-    sse.onerror = (error) => {
-      console.warn("SSE 오류 발생:", error);
-      console.warn("SSE 재연결 시도 중...");
-      sse.close(); // 연결 종료 후 재시도
-      setTimeout(() => {
-        connectSSE(); // 5초 후 재연결 시도
-      }, 5000);
-    };
+      sse.onerror = (error) => {
+        console.warn("SSE 오류 발생:", error);
+        console.warn("SSE 재연결 시도 중...");
+        sse.close();
+        setTimeout(connectSSE, 5000);
+      };
 
-    // 컴포넌트가 언마운트될 때 SSE 연결 종료
-    return () => {
-      sse.close();
-      console.log("SSE 연결 종료");
-    };
+      // 컴포넌트 언마운트 시 연결 정리
+      return () => {
+        sse.close();
+      };
+    } catch (error) {
+      console.error("SSE 연결 오류:", error);
+      setTimeout(connectSSE, 5000);
+    }
   };
 
   const logout = () => {

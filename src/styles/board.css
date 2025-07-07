@@ -74,3 +74,20 @@
 .reply-reaction-btn:hover:not(.liked):not(.disliked) {
   color: #888;
 }
+.comment-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
+
+.best-comment {
+    background-color: #f0f8ff; /* 채택된 댓글은 연한 파란색 배경 */
+    border-color: #1e90ff; /* 테두리 색상 */
+}
+
+.best-label {
+    font-size: 14px;
+    color: #1e90ff;
+    font-weight: bold;
+    margin-left: 10px;
+}
