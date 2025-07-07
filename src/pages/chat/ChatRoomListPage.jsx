@@ -50,7 +50,7 @@ const ChatRoomList = () => {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const clubId = urlParams.get('clubId');
-
+        console.log('챗룸리스트도착')
         if (!clubId || !token) {
             alert('잘못된 접근입니다.');
             return;

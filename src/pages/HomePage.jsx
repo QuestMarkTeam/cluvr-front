@@ -180,13 +180,14 @@ export default function HomePage() {
                     </span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
-                    <button 
-                        className="icon-btn" 
-                        onClick={handleNotificationClick}
-                        style={{ fontSize: '1.2rem', color: '#666' }}
-                    >
-                        🔔
-                    </button>
+                    <Link to="/notifications" className="signup-link">로그인으로 돌아가기
+                        <button
+                            className="icon-btn"
+                            style={{ fontSize: '1.2rem', color: '#666' }}
+                        >
+                            🔔
+                        </button>
+                    </Link>
                 </div>
             </header>
 
