@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-
 const BASE_URL = "https://cluvr.co.kr";
 
 const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
@@ -95,8 +94,16 @@ const NotificationPage = () => {
 
 
   const connectSSE = () => {
-    try {
-      // API_NOTIFICATION_URL 사용하고 토큰을 파라미터로 전달
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      const token = localStorage.getItem('accessToken'); // 로컬 스토리지에서 토큰 가져오기
+
+      // 토큰이 없으면 연결을 하지 않음
+      if (!token) {
+        console.error("토큰이 없습니다. 로그인 후 다시 시도하세요.");
+        return;
+      }
+
       const sse = new EventSource(`${API_NOTIFICATION_URL}/notifications/stream/connect?token=${token}`);
 
       sse.onopen = () => {
@@ -106,7 +113,7 @@ const NotificationPage = () => {
       sse.onmessage = (e) => {
         try {
           const newNoti = JSON.parse(e.data);
-          setNotifications((prev) => [newNoti, ...prev]);
+          setNotifications((prev) => [newNoti, ...prev]); // 새 알림을 기존 목록에 추가
         } catch (error) {
           console.error("SSE 메시지 파싱 오류:", error);
         }
@@ -115,18 +122,19 @@ const NotificationPage = () => {
       sse.onerror = (error) => {
         console.warn("SSE 오류 발생:", error);
         console.warn("SSE 재연결 시도 중...");
-        sse.close();
-        setTimeout(connectSSE, 5000);
+        sse.close(); // 연결 종료 후 재시도
+        setTimeout(() => {
+          connectSSE(); // 5초 후 재연결 시도
+        }, 5000);
       };
 
-      // 컴포넌트 언마운트 시 연결 정리
+      // 컴포넌트가 언마운트될 때 SSE 연결 종료
       return () => {
         sse.close();
+        console.log("SSE 연결 종료");
       };
-    } catch (error) {
-      console.error("SSE 연결 오류:", error);
-      setTimeout(connectSSE, 5000);
-    }
+    }, []); // 최초 렌더링 시에만 실행되도록 설정
+
   };
 
   const logout = () => {
