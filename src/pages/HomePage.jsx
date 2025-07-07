@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
 
 export default function HomePage() {
     const [clubs, setClubs] = useState([]);
@@ -140,7 +141,7 @@ export default function HomePage() {
         if (!token) return;
         
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/notifications`, {
+            const res = await fetch(`${API_NOTIFICATION_URL}/notifications`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
