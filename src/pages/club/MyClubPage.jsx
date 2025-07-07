@@ -123,7 +123,7 @@ export default function MyClubPage() {
         }
 
         console.log('CHAT_URL:', CHAT_URL);
-        window.location.href = `${CHAT_URL}/chatroomlist?clubId=${clubId}`;
+        window.location.href = `/chatroomlist?clubId=${clubId}`;
     };
 
     const escapeHtml = (text) => {
