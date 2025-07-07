@@ -25,6 +25,7 @@ import NotificationPage from './pages/notification/NotificationPage.jsx';
 import NoticeListPage from './pages/notice/NoticeListPage.jsx';
 import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
 import NoticeDetailPage from './pages/notice/NoticeDetailPage.jsx';
+import GemLogPage from './pages/gem/GemLogPage.jsx';
 
 function App() {
     return (
@@ -62,6 +63,8 @@ function App() {
                 <Route path="/notice/detail" element={<NoticeDetailPage />} />
                 {/* 경로 - /알림 */}
                 <Route path="/notifications" element={<NotificationPage />} />
+                {/* 경로 - /gem */}
+                <Route path="/gems/log" element={<GemLogPage />} />
                 {/* 없는 경로 처리 */}
                 <Route path="*" element={<div style={{ textAlign: 'center', marginTop: '50px' }}>404 - 페이지를 찾을 수 없습니다.</div>} />
             </Routes>
