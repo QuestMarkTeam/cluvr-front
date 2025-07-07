@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+const BASE_URL = "https://cluvr.co.kr";
+
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
 
@@ -35,14 +37,35 @@ const NotificationPage = () => {
     if (!noti.isRead) {
       await markAsRead(noti.id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === noti.id ? { ...n, isRead: true } : n))
+          prev.map((n) => (n.id === noti.id ? { ...n, isRead: true } : n))
       );
     }
 
-    if (noti.targetType === "BOARD") {
-      window.location.href = `/boards/${noti.targetId}`;
+    const path = resolveNotificationPath(noti.targetType, noti.targetId);
+    if (path) {
+      window.location.href = BASE_URL + path;
+    } else {
+      alert("지원하지 않는 알림 유형입니다.");
     }
   };
+
+
+
+  function resolveNotificationPath(targetType, targetId) {
+    switch (targetType) {
+      case "BOARD":
+        return `/boards/${targetId}`;
+      case "USER":
+        return `/profile`; // 마이페이지 (자기 자신)
+      case "FOLLOW":
+        return `/users/${targetId}`; // 상대 프로필
+      case "CLUB":
+        return `/clubs/${targetId}`;
+      default:
+        return null;
+    }
+  }
+
 
   const connectSSE = () => {
     const sse = new EventSource("/notifications/connect");
