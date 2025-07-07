@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 
+const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
+const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
+
 const NotificationPage = () => {
   const [notifications, setNotifications] = useState([]);
 
@@ -17,7 +20,7 @@ const NotificationPage = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    const res = await fetch("/notifications", {
+    const res = await fetch(`${API_DOMAIN_URL}/notifications`, {
       headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
@@ -25,7 +28,7 @@ const NotificationPage = () => {
   };
 
   const markAsRead = async (notiId) => {
-    await fetch(`/notifications/${notiId}/read`, {
+    await fetch(`${API_DOMAIN_URL}/notifications/${notiId}/read`, {
       method: "PATCH",
       headers: { Authorization: "Bearer " + token },
     });
