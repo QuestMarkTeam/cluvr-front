@@ -20,7 +20,7 @@ const NotificationPage = () => {
   }, []);
 
   const fetchNotifications = async () => {
-    const res = await fetch(`${API_DOMAIN_URL}/notifications`, {
+    const res = await fetch(`${API_NOTIFICATION_URL}/notifications`, {
       headers: { Authorization: "Bearer " + token },
     });
     const data = await res.json();
@@ -28,7 +28,7 @@ const NotificationPage = () => {
   };
 
   const markAsRead = async (notiId) => {
-    await fetch(`${API_DOMAIN_URL}/notifications/${notiId}/read`, {
+    await fetch(`${API_NOTIFICATION_URL}/notifications/${notiId}/read`, {
       method: "PATCH",
       headers: { Authorization: "Bearer " + token },
     });
