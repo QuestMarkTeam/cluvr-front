@@ -11,7 +11,8 @@ const CreateRoom = () => {
     const [notification, setNotification] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [clubId, setClubId] = useState('');
-
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState('');
 
     // 에러 처리 함수
     const handleApiError = (error, defaultMessage) => {
@@ -55,6 +56,18 @@ const CreateRoom = () => {
         setClubId(clubId);
     }, []);
 
+    // 이미지 파일 선택 핸들러
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        } else {
+            setImageFile(null);
+            setImagePreview('');
+        }
+    };
+
     // 채팅방 생성 함수
     const createChatRoom = async (e) => {
         e.preventDefault();
@@ -62,6 +75,14 @@ const CreateRoom = () => {
         if (!roomName) {
             showNotification('채팅방 이름을 입력해주세요.', 'error');
             return;
+        }
+
+        // 실제 업로드 API가 없으므로, imageUrl은 미리보기 URL 또는 빈 문자열로 처리
+        let finalImageUrl = imageUrl;
+        if (imageFile) {
+            // 실제 업로드 API가 있다면 여기에 업로드 로직 추가
+            // 예시: finalImageUrl = await uploadImage(imageFile);
+            finalImageUrl = imagePreview; // 임시로 미리보기 URL 사용
         }
 
         try {
@@ -73,7 +94,7 @@ const CreateRoom = () => {
                 },
                 body: JSON.stringify({
                     name: roomName,
-                    imageUrl: imageUrl || '',
+                    imageUrl: finalImageUrl || '',
                     type: roomType,
                 }),
             });
@@ -145,15 +166,31 @@ const CreateRoom = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="imageUrl">채팅방 이미지 URL (선택사항)</label>
-                    <input
-                        type="url"
-                        id="imageUrl"
-                        name="imageUrl"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="https://example.com/image.jpg"
-                    />
+                    <label>채팅방 이미지 업로드 (선택사항)</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <label htmlFor="image-upload" className="image-upload-label" style={{
+                            background: '#f5f5f5',
+                            border: '1px solid #ccc',
+                            borderRadius: '6px',
+                            padding: '8px 16px',
+                            cursor: 'pointer',
+                            fontWeight: 500
+                        }}>
+                            이미지 업로드
+                            <input
+                                type="file"
+                                id="image-upload"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={handleImageChange}
+                            />
+                        </label>
+                        {imagePreview ? (
+                            <img src={imagePreview} alt="미리보기" style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #ddd' }} />
+                        ) : (
+                            <span style={{ color: '#aaa', fontSize: 14 }}>이미지를 선택하세요</span>
+                        )}
+                    </div>
                 </div>
 
                 <div className="button-group">
