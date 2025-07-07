@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 
 const BASE_URL = "https://cluvr.co.kr";
 
-const BASE_URL = "https://cluvr.co.kr";
-
 const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
 const API_DOMAIN_URL = import.meta.env.VITE_API_DOMAIN_URL;
 
