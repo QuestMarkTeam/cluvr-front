@@ -20,12 +20,37 @@ export default function BoardDetailPage() {
     const [userInfo, setUserInfo] = useState({ userName: '사용자', gem: 0, clover: 0 });
     const [showNotificationModal, setShowNotificationModal] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const [reactionLoading, setReactionLoading] = useState({}); // 리액션 로딩 상태
 
     useEffect(() => {
         fetchBoardDetail();
         fetchComments();
         fetchUserProfile();
     }, [boardId]);
+
+    // 댓글 리액션 상태 초기화 함수
+    const initializeCommentReactions = (comments) => {
+        const reactions = {};
+        comments.forEach(comment => {
+            reactions[comment.id] = {
+                like: false,
+                dislike: false,
+                likeCount: comment.like || 0,
+                dislikeCount: comment.dislike || 0
+            };
+        });
+        setCommentReactions(reactions);
+    };
+
+    // 게시글 리액션 상태 초기화 함수
+    const initializeBoardReactions = (board) => {
+        if (board) {
+            setBoardReactions({
+                like: false,
+                dislike: false
+            });
+        }
+    };
 
     const fetchBoardDetail = async () => {
         const token = localStorage.getItem('accessToken');
@@ -49,6 +74,7 @@ export default function BoardDetailPage() {
             const data = await res.json();
             console.log('게시글 데이터:', data.data); // 디버깅용
             setBoard(data.data);
+            initializeBoardReactions(data.data); // 게시글 리액션 상태 초기화
         } catch (err) {
             console.error('게시글 상세 오류:', err);
         }
@@ -89,6 +115,7 @@ export default function BoardDetailPage() {
             console.log('댓글 content:', data.data?.content); // 디버깅용
 
             setComments(data.data?.content || []);
+            initializeCommentReactions(data.data?.content || []); // 댓글 리액션 상태 초기화
         } catch (err) {
             console.error('댓글 불러오기 오류:', err);
             setComments([]);
@@ -183,6 +210,13 @@ export default function BoardDetailPage() {
 
     const handleCommentReaction = async (replyId, type, isSelected) => {
         if (!board) return;
+        
+        // 이미 로딩 중이면 중복 클릭 방지
+        const loadingKey = `${replyId}-${type}`;
+        if (reactionLoading[loadingKey]) return;
+        
+        setReactionLoading(prev => ({ ...prev, [loadingKey]: true }));
+        
         const token = localStorage.getItem('accessToken');
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id, replyId };
@@ -201,6 +235,7 @@ export default function BoardDetailPage() {
             setCommentReactions(prev => ({
                 ...prev,
                 [replyId]: {
+                    ...prev[replyId],
                     like: type === 'LIKE' ? !isSelected : prev[replyId]?.like || false,
                     dislike: type === 'DISLIKE' ? !isSelected : prev[replyId]?.dislike || false
                 }
@@ -210,12 +245,21 @@ export default function BoardDetailPage() {
             fetchComments();
         } catch (err) {
             alert('댓글 리액션 처리 실패');
+        } finally {
+            setReactionLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
     };
 
     // 게시글 리액션 핸들러
     const handleBoardReaction = async (type, isSelected) => {
         if (!board) return;
+        
+        // 이미 로딩 중이면 중복 클릭 방지
+        const loadingKey = `board-${type}`;
+        if (reactionLoading[loadingKey]) return;
+        
+        setReactionLoading(prev => ({ ...prev, [loadingKey]: true }));
+        
         const token = localStorage.getItem('accessToken');
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id }; // replyId 없음 = 게시글 리액션
@@ -237,6 +281,8 @@ export default function BoardDetailPage() {
             fetchBoardDetail();
         } catch (err) {
             alert('게시글 리액션 처리 실패');
+        } finally {
+            setReactionLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
     };
 
@@ -370,18 +416,22 @@ export default function BoardDetailPage() {
                                     onClick={() => handleBoardReaction('LIKE', boardReactions?.like)}
                                     aria-label="좋아요"
                                     type="button"
+                                    disabled={reactionLoading['board-LIKE']}
                                 >
                                     <span style={{fontSize: '1.2em'}}>👍</span>
                                     {board?.like ?? 0}
+                                    {reactionLoading['board-LIKE'] && <span style={{marginLeft: '4px'}}>...</span>}
                                 </button>
                                 <button
                                     className={`reply-reaction-btn${boardReactions?.dislike ? ' disliked' : ''}`}
                                     onClick={() => handleBoardReaction('DISLIKE', boardReactions?.dislike)}
                                     aria-label="싫어요"
                                     type="button"
+                                    disabled={reactionLoading['board-DISLIKE']}
                                 >
                                     <span style={{fontSize: '1.2em'}}>👎</span>
                                     {board?.dislike ?? 0}
+                                    {reactionLoading['board-DISLIKE'] && <span style={{marginLeft: '4px'}}>...</span>}
                                 </button>
                             </div>
                         </>
@@ -440,18 +490,22 @@ export default function BoardDetailPage() {
                                         onClick={() => handleCommentReaction(comment.id, 'LIKE', commentReactions[comment.id]?.like)}
                                         aria-label="좋아요"
                                         type="button"
+                                        disabled={reactionLoading[`${comment.id}-LIKE`]}
                                     >
                                         <span style={{fontSize: '1.2em'}}>👍</span>
                                         {comment.like ?? 0}
+                                        {reactionLoading[`${comment.id}-LIKE`] && <span style={{marginLeft: '4px'}}>...</span>}
                                     </button>
                                     <button
                                         className={`reply-reaction-btn${commentReactions[comment.id]?.dislike ? ' disliked' : ''}`}
                                         onClick={() => handleCommentReaction(comment.id, 'DISLIKE', commentReactions[comment.id]?.dislike)}
                                         aria-label="싫어요"
                                         type="button"
+                                        disabled={reactionLoading[`${comment.id}-DISLIKE`]}
                                     >
                                         <span style={{fontSize: '1.2em'}}>👎</span>
                                         {comment.dislike ?? 0}
+                                        {reactionLoading[`${comment.id}-DISLIKE`] && <span style={{marginLeft: '4px'}}>...</span>}
                                     </button>
                                     <span
                                         style={{
