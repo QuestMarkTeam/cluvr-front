@@ -9,6 +9,7 @@ export default function BoardDetailPage() {
     const { boardId } = useParams(); // URL에서 boardId 추출
     const navigate = useNavigate();
 
+    const [clover, setClover] = useState([]);
     const [board, setBoard] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -24,9 +25,36 @@ export default function BoardDetailPage() {
     useEffect(() => {
         fetchBoardDetail();
         fetchComments();
+        fetchGetClover();
         fetchUserProfile();
     }, [boardId]);
+    const fetchGetClover= async () =>{
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clovers`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
 
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error('클로버를 불러오지 못했습니다.');
+            }
+
+            const data = await res.json();
+            console.log(data.data.score);
+            setClover(data.data.score);
+        } catch (err) {
+            console.error('클로버 목록 조회 실패:', err);
+            setClover([]);
+        }
+    }
     const fetchBoardDetail = async () => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -331,7 +359,7 @@ export default function BoardDetailPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
-                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {clover}</span>
                     <button
                         className="icon-btn"
                         onClick={handleNotificationClick}

@@ -7,6 +7,7 @@ const API_NOTIFICATION_URL = import.meta.env.VITE_API_NOTIFICATION_URL;
 
 export default function HomePage() {
     const [clubs, setClubs] = useState([]);
+    const [clover, setClover] = useState([]);
     const [posts, setPosts] = useState([]);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [userInfo, setUserInfo] = useState({ userName: '사용자', gem: 0, clover: 0 });
@@ -22,11 +23,40 @@ export default function HomePage() {
 
     useEffect(() => {
         fetchHomeClubs();
+        fetchGetClover();
         fetchHomeLatestPosts();
         fetchUserProfile(); // 사용자 정보 로드
         const interval = setInterval(() => nextSlide(), 3000);
         return () => clearInterval(interval);
     }, []);
+
+    const fetchGetClover= async () =>{
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clovers`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
+
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error('클로버를 불러오지 못했습니다.');
+            }
+
+            const data = await res.json();
+            console.log(data.data.score);
+            setClover(data.data.score);
+        } catch (err) {
+            console.error('클로버 목록 조회 실패:', err);
+            setClover([]);
+        }
+    }
     const fetchHomeClubs = async () => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -179,7 +209,7 @@ export default function HomePage() {
                         {console.log('HomePage - 상단바 렌더링, userInfo:', userInfo)}
                     </span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
-                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {clover}</span>
                     <Link to="/notifications" className="signup-link">
                         <button
                             className="icon-btn"

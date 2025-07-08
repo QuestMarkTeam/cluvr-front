@@ -10,6 +10,7 @@ const CHAT_URL = import.meta.env.VITE_API_CHAT_URL;
 export default function MyClubPage() {
     const [clubs, setClubs] = useState([]);
     const [error, setError] = useState('');
+    const [clover, setClover] = useState([]);
     const [expired, setExpired] = useState(false);
     const [userInfo, setUserInfo] = useState({ userName: '사용자', gem: 0, clover: 0 });
     const [showNotificationModal, setShowNotificationModal] = useState(false);
@@ -19,8 +20,36 @@ export default function MyClubPage() {
     useEffect(() => {
         fetchClubs();
         fetchUserProfile();
+        fetchGetClover();
     }, []);
 
+    const fetchGetClover= async () =>{
+        const token = localStorage.getItem('accessToken');
+        try {
+            const res = await fetch(`${API_DOMAIN_URL}/api/clovers`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
+                },
+            });
+
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error('클로버를 불러오지 못했습니다.');
+            }
+
+            const data = await res.json();
+            console.log(data.data.score);
+            setClover(data.data.score);
+        } catch (err) {
+            console.error('클럽 목록 조회 실패:', err);
+            setClover([]);
+        }
+    }
     const fetchClubs = async () => {
         const accessToken = localStorage.getItem('accessToken');
         if (!accessToken) {
@@ -139,7 +168,7 @@ export default function MyClubPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
-                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {clover}</span>
                     <button 
                         className="icon-btn" 
                         onClick={handleNotificationClick}
