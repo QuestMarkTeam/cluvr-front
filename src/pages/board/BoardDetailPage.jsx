@@ -52,6 +52,58 @@ export default function BoardDetailPage() {
         }
     };
 
+    // 사용자의 리액션 상태 조회
+    const fetchUserReactionStatus = async (boardId, replyId = null) => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        try {
+            const url = replyId 
+                ? `${API_DOMAIN_URL}/api/reactions/status/${boardId}?replyId=${replyId}`
+                : `${API_DOMAIN_URL}/api/reactions/status/${boardId}`;
+            
+            const res = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.status === 401) {
+                localStorage.clear();
+                return;
+            }
+
+            if (!res.ok) {
+                console.error('리액션 상태 조회 실패');
+                return;
+            }
+
+            const data = await res.json();
+            const status = data.data;
+
+            if (replyId) {
+                // 댓글 리액션 상태 업데이트
+                setCommentReactions(prev => ({
+                    ...prev,
+                    [replyId]: {
+                        ...prev[replyId],
+                        like: status.hasReaction && status.reactionType === 'LIKE',
+                        dislike: status.hasReaction && status.reactionType === 'DISLIKE'
+                    }
+                }));
+            } else {
+                // 게시글 리액션 상태 업데이트
+                setBoardReactions({
+                    like: status.hasReaction && status.reactionType === 'LIKE',
+                    dislike: status.hasReaction && status.reactionType === 'DISLIKE'
+                });
+            }
+        } catch (err) {
+            console.error('리액션 상태 조회 오류:', err);
+        }
+    };
+
     const fetchBoardDetail = async () => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -75,6 +127,8 @@ export default function BoardDetailPage() {
             console.log('게시글 데이터:', data.data); // 디버깅용
             setBoard(data.data);
             initializeBoardReactions(data.data); // 게시글 리액션 상태 초기화
+            // 사용자의 게시글 리액션 상태 조회
+            await fetchUserReactionStatus(data.data.id);
         } catch (err) {
             console.error('게시글 상세 오류:', err);
         }
@@ -116,6 +170,13 @@ export default function BoardDetailPage() {
 
             setComments(data.data?.content || []);
             initializeCommentReactions(data.data?.content || []); // 댓글 리액션 상태 초기화
+            
+            // 각 댓글의 사용자 리액션 상태 조회
+            if (data.data?.content) {
+                for (const comment of data.data.content) {
+                    await fetchUserReactionStatus(boardId, comment.id);
+                }
+            }
         } catch (err) {
             console.error('댓글 불러오기 오류:', err);
             setComments([]);
@@ -221,8 +282,9 @@ export default function BoardDetailPage() {
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id, replyId };
         try {
+            // 항상 POST 요청으로 처리 (백엔드에서 같은 리액션은 취소로 처리)
             const res = await fetch(url, {
-                method: isSelected ? 'DELETE' : 'POST',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -264,8 +326,9 @@ export default function BoardDetailPage() {
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id }; // replyId 없음 = 게시글 리액션
         try {
+            // 항상 POST 요청으로 처리 (백엔드에서 같은 리액션은 취소로 처리)
             const res = await fetch(url, {
-                method: isSelected ? 'DELETE' : 'POST',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
