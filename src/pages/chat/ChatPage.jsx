@@ -89,6 +89,7 @@ const Chat = () => {
     const [myUserId, setMyUserId] = useState(null);
     const [roomId, setRoomId] = useState(null);
     const [connectionStatus, setConnectionStatus] = useState('연결 중...');
+    const [isComposing, setIsComposing] = useState(false);
 
 
     // 소켓/구독/roomId 등은 useRef로 관리
@@ -579,10 +580,12 @@ const Chat = () => {
                             id="messageInput"
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder={connectionStatus === '연결됨' ? "메시지를 입력하세요" : "연결 중..."}
+                            placeholder="메시지를 입력하세요"
                             disabled={!stompClientRef.current?.connected}
+                            onCompositionStart={() => setIsComposing(true)}
+                            onCompositionEnd={() => setIsComposing(false)}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter') sendMessage();
+                                if (e.key === 'Enter' && !isComposing) sendMessage();
                             }}
                         />
                         <button

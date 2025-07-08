@@ -9,7 +9,6 @@ export default function BoardDetailPage() {
     const { boardId } = useParams(); // URL에서 boardId 추출
     const navigate = useNavigate();
 
-    const [clover, setClover] = useState([]);
     const [board, setBoard] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
@@ -21,21 +20,53 @@ export default function BoardDetailPage() {
     const [userInfo, setUserInfo] = useState({ userName: '사용자', gem: 0, clover: 0 });
     const [showNotificationModal, setShowNotificationModal] = useState(false);
     const [notifications, setNotifications] = useState([]);
+    const [reactionLoading, setReactionLoading] = useState({}); // 리액션 로딩 상태
 
     useEffect(() => {
         fetchBoardDetail();
         fetchComments();
-        fetchGetClover();
         fetchUserProfile();
     }, [boardId]);
-    const fetchGetClover= async () =>{
+
+    // 댓글 리액션 상태 초기화 함수
+    const initializeCommentReactions = (comments) => {
+        const reactions = {};
+        comments.forEach(comment => {
+            reactions[comment.id] = {
+                like: false,
+                dislike: false,
+                likeCount: comment.like || 0,
+                dislikeCount: comment.dislike || 0
+            };
+        });
+        setCommentReactions(reactions);
+    };
+
+    // 게시글 리액션 상태 초기화 함수
+    const initializeBoardReactions = (board) => {
+        if (board) {
+            setBoardReactions({
+                like: false,
+                dislike: false
+            });
+        }
+    };
+
+    // 사용자의 리액션 상태 조회
+    const fetchUserReactionStatus = async (boardId, replyId = null) => {
         const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
         try {
-            const res = await fetch(`${API_DOMAIN_URL}/api/clovers`, {
+            const url = replyId 
+                ? `${API_DOMAIN_URL}/api/reactions/status/${boardId}?replyId=${replyId}`
+                : `${API_DOMAIN_URL}/api/reactions/status/${boardId}`;
+            
+            const res = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`, // Authorization 헤더에 토큰 추가
-                },
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             if (res.status === 401) {
@@ -44,17 +75,35 @@ export default function BoardDetailPage() {
             }
 
             if (!res.ok) {
-                throw new Error('클로버를 불러오지 못했습니다.');
+                console.error('리액션 상태 조회 실패');
+                return;
             }
 
             const data = await res.json();
-            console.log(data.data.score);
-            setClover(data.data.score);
+            const status = data.data;
+
+            if (replyId) {
+                // 댓글 리액션 상태 업데이트
+                setCommentReactions(prev => ({
+                    ...prev,
+                    [replyId]: {
+                        ...prev[replyId],
+                        like: status.hasReaction && status.reactionType === 'LIKE',
+                        dislike: status.hasReaction && status.reactionType === 'DISLIKE'
+                    }
+                }));
+            } else {
+                // 게시글 리액션 상태 업데이트
+                setBoardReactions({
+                    like: status.hasReaction && status.reactionType === 'LIKE',
+                    dislike: status.hasReaction && status.reactionType === 'DISLIKE'
+                });
+            }
         } catch (err) {
-            console.error('클로버 목록 조회 실패:', err);
-            setClover([]);
+            console.error('리액션 상태 조회 오류:', err);
         }
-    }
+    };
+
     const fetchBoardDetail = async () => {
         const token = localStorage.getItem('accessToken');
         try {
@@ -77,6 +126,9 @@ export default function BoardDetailPage() {
             const data = await res.json();
             console.log('게시글 데이터:', data.data); // 디버깅용
             setBoard(data.data);
+            initializeBoardReactions(data.data); // 게시글 리액션 상태 초기화
+            // 사용자의 게시글 리액션 상태 조회
+            await fetchUserReactionStatus(data.data.id);
         } catch (err) {
             console.error('게시글 상세 오류:', err);
         }
@@ -117,6 +169,14 @@ export default function BoardDetailPage() {
             console.log('댓글 content:', data.data?.content); // 디버깅용
 
             setComments(data.data?.content || []);
+            initializeCommentReactions(data.data?.content || []); // 댓글 리액션 상태 초기화
+            
+            // 각 댓글의 사용자 리액션 상태 조회
+            if (data.data?.content) {
+                for (const comment of data.data.content) {
+                    await fetchUserReactionStatus(boardId, comment.id);
+                }
+            }
         } catch (err) {
             console.error('댓글 불러오기 오류:', err);
             setComments([]);
@@ -211,12 +271,20 @@ export default function BoardDetailPage() {
 
     const handleCommentReaction = async (replyId, type, isSelected) => {
         if (!board) return;
+        
+        // 이미 로딩 중이면 중복 클릭 방지
+        const loadingKey = `${replyId}-${type}`;
+        if (reactionLoading[loadingKey]) return;
+        
+        setReactionLoading(prev => ({ ...prev, [loadingKey]: true }));
+        
         const token = localStorage.getItem('accessToken');
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id, replyId };
         try {
+            // 항상 POST 요청으로 처리 (백엔드에서 같은 리액션은 취소로 처리)
             const res = await fetch(url, {
-                method: isSelected ? 'DELETE' : 'POST',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -229,6 +297,7 @@ export default function BoardDetailPage() {
             setCommentReactions(prev => ({
                 ...prev,
                 [replyId]: {
+                    ...prev[replyId],
                     like: type === 'LIKE' ? !isSelected : prev[replyId]?.like || false,
                     dislike: type === 'DISLIKE' ? !isSelected : prev[replyId]?.dislike || false
                 }
@@ -238,18 +307,28 @@ export default function BoardDetailPage() {
             fetchComments();
         } catch (err) {
             alert('댓글 리액션 처리 실패');
+        } finally {
+            setReactionLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
     };
 
     // 게시글 리액션 핸들러
     const handleBoardReaction = async (type, isSelected) => {
         if (!board) return;
+        
+        // 이미 로딩 중이면 중복 클릭 방지
+        const loadingKey = `board-${type}`;
+        if (reactionLoading[loadingKey]) return;
+        
+        setReactionLoading(prev => ({ ...prev, [loadingKey]: true }));
+        
         const token = localStorage.getItem('accessToken');
         const url = `${API_DOMAIN_URL}/api/reactions`;
         const body = { reactionType: type, boardId: board.id }; // replyId 없음 = 게시글 리액션
         try {
+            // 항상 POST 요청으로 처리 (백엔드에서 같은 리액션은 취소로 처리)
             const res = await fetch(url, {
-                method: isSelected ? 'DELETE' : 'POST',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -265,6 +344,8 @@ export default function BoardDetailPage() {
             fetchBoardDetail();
         } catch (err) {
             alert('게시글 리액션 처리 실패');
+        } finally {
+            setReactionLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
     };
 
@@ -359,7 +440,7 @@ export default function BoardDetailPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '0.9rem', color: '#666' }}>{userInfo.userName}</span>
                     <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>💎 {userInfo.gem}</span>
-                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {clover}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#6EE7B7' }}>🍀 {userInfo.clover}</span>
                     <button
                         className="icon-btn"
                         onClick={handleNotificationClick}
@@ -398,18 +479,22 @@ export default function BoardDetailPage() {
                                     onClick={() => handleBoardReaction('LIKE', boardReactions?.like)}
                                     aria-label="좋아요"
                                     type="button"
+                                    disabled={reactionLoading['board-LIKE']}
                                 >
                                     <span style={{fontSize: '1.2em'}}>👍</span>
                                     {board?.like ?? 0}
+                                    {reactionLoading['board-LIKE'] && <span style={{marginLeft: '4px'}}>...</span>}
                                 </button>
                                 <button
                                     className={`reply-reaction-btn${boardReactions?.dislike ? ' disliked' : ''}`}
                                     onClick={() => handleBoardReaction('DISLIKE', boardReactions?.dislike)}
                                     aria-label="싫어요"
                                     type="button"
+                                    disabled={reactionLoading['board-DISLIKE']}
                                 >
                                     <span style={{fontSize: '1.2em'}}>👎</span>
                                     {board?.dislike ?? 0}
+                                    {reactionLoading['board-DISLIKE'] && <span style={{marginLeft: '4px'}}>...</span>}
                                 </button>
                             </div>
                         </>
@@ -468,18 +553,22 @@ export default function BoardDetailPage() {
                                         onClick={() => handleCommentReaction(comment.id, 'LIKE', commentReactions[comment.id]?.like)}
                                         aria-label="좋아요"
                                         type="button"
+                                        disabled={reactionLoading[`${comment.id}-LIKE`]}
                                     >
                                         <span style={{fontSize: '1.2em'}}>👍</span>
                                         {comment.like ?? 0}
+                                        {reactionLoading[`${comment.id}-LIKE`] && <span style={{marginLeft: '4px'}}>...</span>}
                                     </button>
                                     <button
                                         className={`reply-reaction-btn${commentReactions[comment.id]?.dislike ? ' disliked' : ''}`}
                                         onClick={() => handleCommentReaction(comment.id, 'DISLIKE', commentReactions[comment.id]?.dislike)}
                                         aria-label="싫어요"
                                         type="button"
+                                        disabled={reactionLoading[`${comment.id}-DISLIKE`]}
                                     >
                                         <span style={{fontSize: '1.2em'}}>👎</span>
                                         {comment.dislike ?? 0}
+                                        {reactionLoading[`${comment.id}-DISLIKE`] && <span style={{marginLeft: '4px'}}>...</span>}
                                     </button>
                                     <span
                                         style={{
