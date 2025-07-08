@@ -82,10 +82,10 @@ export default function LoginPage() {
                 <button type="submit" className="login-btn" disabled={loading}>
                     {loading ? '로그인 중...' : '로그인'}
                 </button>
-                <button type="button" className="login-social-btn login-google" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                {/* <button type="button" className="login-social-btn login-google" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     <img src="/img/image.png" alt="Google Logo" style={{ width: 24, height: 24, background: 'white', borderRadius: '50%' }} />
                     구글 로그인
-                </button>
+                </button> */}
                 <div style={{ marginTop: '8px' }}>
                     <Link to="/signup" className="login-link">회원가입</Link>
                     <Link to="/forget-password" className="login-link">비밀번호 찾기</Link>
