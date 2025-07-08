@@ -397,7 +397,7 @@ export default function BoardDetailPage() {
                         <div style={{color: '#888', textAlign: 'center'}}>댓글이 없습니다.</div>
                     ) : (
                         [...comments].reverse().map((comment) => (
-                            <li className={`comment-item ${comment.isBest ? 'best-comment' : ''}`} key={comment.id}>
+                            <li className={`comment-item ${comment.best ? 'best-comment' : ''}`} key={comment.id}>
                                 {/* 첫 줄: 작성자 + 날짜 + 채택 버튼 */}
                                 <div style={{
                                     display: 'flex',
@@ -431,7 +431,7 @@ export default function BoardDetailPage() {
                                 {/* 두 번째 줄: 댓글 내용 */}
                                 <div className="comment-content">
                                     {comment.content}
-                                    {comment.isBest && <span className="best-label">채택됨</span>}
+                                    {comment.best && <span className="best-label">채택됨</span>}
                                 </div>
                                 {/* 댓글 리액션 */}
                                 <div className="reply-reaction">
