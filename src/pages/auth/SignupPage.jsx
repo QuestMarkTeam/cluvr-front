@@ -221,7 +221,7 @@ export default function SignupPage() {
                         <option value="">성별 선택</option>
                         <option value="MALE">남성</option>
                         <option value="FEMALE">여성</option>
-                        <option value="OTHER">기타</option>
+                        {/* <option value="OTHER">기타</option> */}
                     </select>
 
                     <select
